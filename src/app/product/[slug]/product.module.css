@@ -1,0 +1,29 @@
+.breadcrumb {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+.breadcrumb a:hover {
+  color: var(--color-primary);
+}
+.breadcrumb span {
+  color: var(--color-text);
+}
+.top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+.back {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .top {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

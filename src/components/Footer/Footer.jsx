@@ -1,0 +1,153 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  FiFacebook,
+  FiInstagram,
+  FiMail,
+  FiMapPin,
+  FiPhone,
+  FiTwitter,
+} from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
+
+import Logo from "@/components/Logo/Logo";
+import { getCategories } from "@/services/categoryService";
+import { BRAND } from "@/utils/constants";
+import styles from "./Footer.module.css";
+
+const WHATSAPP_URL = `https://wa.me/${BRAND.whatsapp}`;
+
+export default function Footer() {
+  const year = new Date().getFullYear();
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getCategories()
+      .then((res) => setCategories(res.data || []))
+      .catch(() => setCategories([]));
+  }, []);
+
+  return (
+    <footer className={styles.footer}>
+      <div className={`container ${styles.grid}`}>
+        <div className={styles.brand}>
+          <Logo height={32} className={styles.logo} />
+          <div className={styles.social}>
+            <a href="#" aria-label="Facebook">
+              <FiFacebook />
+            </a>
+            <a
+              href={BRAND.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <FiInstagram />
+            </a>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+            >
+              <FaWhatsapp />
+            </a>
+            <a href="#" aria-label="Twitter">
+              <FiTwitter />
+            </a>
+          </div>
+        </div>
+
+        <div className={styles.col}>
+          <h4>Shop</h4>
+          <Link href="/shop">All Products</Link>
+          <ul className={styles.shopList}>
+            {categories.map((cat) => {
+              const subs = (cat.subcategories || []).filter(
+                (sub) => sub.is_active !== false
+              );
+              return (
+                <li key={cat.id} className={styles.shopCat}>
+                  <Link
+                    href={`/shop?category=${cat.slug}`}
+                    className={styles.shopCatLink}
+                  >
+                    {cat.name}
+                  </Link>
+                  {subs.length > 0 && (
+                    <ul className={styles.shopSubList}>
+                      {subs.map((sub) => (
+                        <li key={sub.id}>
+                          <Link href={`/shop?subcategory=${sub.slug}`}>
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className={styles.col}>
+          <h4>Company</h4>
+          <Link href="/about">About Us</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/orders">My Orders</Link>
+          <Link href="/cart">Cart</Link>
+        </div>
+
+        <div className={styles.col}>
+          <h4>Get in Touch</h4>
+          <p className={styles.contactLine}>
+            <FiMapPin
+              className={styles.contactIcon}
+              size={16}
+              strokeWidth={2}
+              aria-hidden
+            />
+            <span>
+              Packaged and Managed by {BRAND.packagedBy}
+              <br />
+              {BRAND.address}
+            </span>
+          </p>
+          <p className={styles.contactLine}>
+            <FiPhone
+              className={styles.contactIcon}
+              size={16}
+              strokeWidth={2}
+              aria-hidden
+            />
+            <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`}>{BRAND.phone}</a>
+          </p>
+          <p className={styles.contactLine}>
+            <FaWhatsapp className={styles.contactIcon} size={16} aria-hidden />
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              WhatsApp Us at {BRAND.whatsappDisplay}
+            </a>
+          </p>
+          <p className={styles.contactLine}>
+            <FiMail
+              className={styles.contactIcon}
+              size={16}
+              strokeWidth={2}
+              aria-hidden
+            />
+            <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
+          </p>
+        </div>
+      </div>
+
+      <div className={styles.bottom}>
+        <div className={`container ${styles.bottomInner}`}>
+          <p>© {year} M Kharavad. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}

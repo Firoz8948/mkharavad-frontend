@@ -1,0 +1,137 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-soft);
+  font-family: var(--font-body);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(var(--black-rgb), 0.45);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+}
+
+.topbar {
+  height: 64px;
+  background: var(--background);
+  border-bottom: 2px solid rgba(var(--heading-rgb), 0.12);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.06);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  flex: 1;
+}
+
+.welcomeIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+
+.adminBadge {
+  background: rgba(var(--heading-rgb), 0.1);
+  color: var(--color-primary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(var(--heading-rgb), 0.3);
+}
+
+.content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+}
+
+.fullLoader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-soft);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(var(--heading-rgb), 0.12);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

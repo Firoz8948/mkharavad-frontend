@@ -1,0 +1,238 @@
+.wrap {
+  margin-bottom: 1.75rem;
+}
+
+/* —— Desktop —— */
+.navDesktop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.25rem 1.75rem;
+  padding: 1.15rem 1.35rem 1.35rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #041d56 4%, #fff) 0%,
+    #fff 100%
+  );
+  border: 1px solid color-mix(in srgb, #041d56 12%, transparent);
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(4, 29, 86, 0.05);
+}
+
+.allBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-ui, inherit);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #041d56;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  align-self: flex-start;
+  margin-top: 0.1rem;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.allBtn:hover {
+  background: color-mix(in srgb, #f26a21 12%, transparent);
+  color: #f26a21;
+}
+
+.allBtn.active {
+  background: #041d56;
+  color: #fff;
+}
+
+.catColumns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.25rem 2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.catColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 160px;
+  max-width: 260px;
+}
+
+.catHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-ui, inherit);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #041d56;
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
+  text-align: left;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.catHead:hover {
+  background: color-mix(in srgb, #f26a21 12%, transparent);
+  color: #f26a21;
+}
+
+.catHead.active {
+  background: #041d56;
+  color: #fff;
+}
+
+.chevron {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transform: rotate(180deg);
+}
+
+.subList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.35rem 0 0.85rem;
+  width: 100%;
+}
+
+.subItem {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-ui, inherit);
+  font-size: 0.86rem;
+  font-weight: 550;
+  color: color-mix(in srgb, #041d56 72%, transparent);
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.subItem:hover {
+  background: color-mix(in srgb, #f26a21 10%, transparent);
+  color: #f26a21;
+}
+
+.subItem.subActive {
+  background: color-mix(in srgb, #f26a21 14%, transparent);
+  color: #f26a21;
+  font-weight: 700;
+}
+
+.emptySub {
+  font-size: 0.8rem;
+  color: #999;
+  padding: 0.35rem 0.55rem;
+}
+
+.catSkeleton {
+  height: 120px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #efe8e1 25%, #f7f3ef 50%, #efe8e1 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* —— Mobile compact chips (hidden on desktop) —— */
+.navMobile {
+  display: none;
+}
+
+.mobileCatRow,
+.mobileSubRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0.15rem 0.1rem 0.35rem;
+}
+
+.mobileCatRow::-webkit-scrollbar,
+.mobileSubRow::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: 0 0 auto;
+  border: 1.5px solid color-mix(in srgb, #041d56 14%, transparent);
+  background: #fff;
+  cursor: pointer;
+  font-family: var(--font-ui, inherit);
+  white-space: nowrap;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.chipCat {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #041d56;
+}
+
+.chipSub {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, #041d56 75%, transparent);
+  background: color-mix(in srgb, #041d56 4%, #fff);
+}
+
+.chipActive {
+  background: #041d56;
+  border-color: #041d56;
+  color: #fff;
+}
+
+.chipSub.chipActive {
+  background: #f26a21;
+  border-color: #f26a21;
+  color: #fff;
+}
+
+@media (max-width: 860px) {
+  .navDesktop {
+    display: none;
+  }
+
+  .navMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.75rem 0.65rem;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #041d56 4%, #fff) 0%,
+      #fff 100%
+    );
+    border: 1px solid color-mix(in srgb, #041d56 10%, transparent);
+    border-radius: 14px;
+  }
+
+  .catSkeleton {
+    height: 88px;
+    border-radius: 14px;
+  }
+}
