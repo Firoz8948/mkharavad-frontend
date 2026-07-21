@@ -2,26 +2,28 @@
 
 import { useState } from "react";
 
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./ProductImages.module.css";
 
 export default function ProductImages({ images = [], name }) {
   const [active, setActive] = useState(0);
-  const hasImages = images.length > 0;
+  const resolved = (images || []).map((img) => mediaUrl(img));
+  const hasImages = resolved.length > 0;
 
   return (
     <div className={styles.wrap}>
       <div className={styles.main}>
         {hasImages ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={images[active]} alt={name} />
+          <img src={resolved[active]} alt={name} />
         ) : (
           <div className={styles.placeholder}>🥜</div>
         )}
       </div>
 
-      {images.length > 1 && (
+      {resolved.length > 1 && (
         <div className={styles.thumbs}>
-          {images.map((img, i) => (
+          {resolved.map((img, i) => (
             <button
               key={i}
               className={`${styles.thumb} ${i === active ? styles.activeThumb : ""}`}

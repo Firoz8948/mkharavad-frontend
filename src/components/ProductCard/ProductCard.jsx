@@ -5,12 +5,13 @@ import { FiShoppingCart } from "react-icons/fi";
 
 import { useCart } from "@/hooks/useCart";
 import { calcDiscount, formatPrice } from "@/utils/formatPrice";
+import { mediaUrl } from "@/utils/mediaUrl";
 import { getProductListingInfo } from "@/utils/productVariants";
 import styles from "./ProductCard.module.css";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
-  const image = product.images?.[0];
+  const image = mediaUrl(product.images?.[0]);
   const listing = getProductListingInfo(product);
   const discount = calcDiscount(listing.mrp, listing.price);
   const outOfStock = listing.outOfStock;

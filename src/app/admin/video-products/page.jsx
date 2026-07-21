@@ -8,6 +8,7 @@ import {
   deleteVideoProduct,
 } from "@/services/adminService";
 import styles from "./video-products.module.css";
+import { mediaUrl } from "@/utils/mediaUrl";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -71,7 +72,7 @@ export default function AdminVideoProductsPage() {
       is_active: item.is_active,
     });
     setVideoFile(null);
-    setVideoPreview(item.video_url ? `${API_BASE}${item.video_url}` : null);
+    setVideoPreview(item.video_url ? mediaUrl(item.video_url, API_BASE) : null);
     setModalOpen(true);
   };
 
@@ -157,7 +158,7 @@ export default function AdminVideoProductsPage() {
               <div className={styles.videoWrap}>
                 {item.video_url ? (
                   <video
-                    src={`${API_BASE}${item.video_url}`}
+                    src={mediaUrl(item.video_url, API_BASE)}
                     className={styles.video}
                     muted
                     loop

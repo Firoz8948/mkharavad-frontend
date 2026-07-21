@@ -11,6 +11,7 @@ import {
   getAdminCategories,
 } from "@/services/adminService";
 import { parseWeightGrams } from "@/utils/productVariants";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./ProductForm.module.css";
 
 const UNITS = ["piece", "set", "kg"];
@@ -243,7 +244,7 @@ function ImageUploader({ productId, images, onImagesChange, pendingFiles, onPend
           {images.map((url, i) => (
             <div key={url} className={styles.imageItem}>
               {i === 0 && <span className={styles.mainBadge}>Main</span>}
-              <img src={`${API_BASE}${url}`} alt={`Product ${i + 1}`} />
+              <img src={mediaUrl(url, API_BASE)} alt={`Product ${i + 1}`} />
               <button
                 type="button"
                 className={styles.removeImgBtn}

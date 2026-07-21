@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+const bunnyCdnHost =
+  process.env.NEXT_PUBLIC_BUNNY_CDN_HOST || "mkharavad-media.b-cdn.net";
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -8,6 +11,11 @@ const nextConfig = {
         hostname: "localhost",
         port: "8000",
         pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: bunnyCdnHost,
+        pathname: "/**",
       },
     ],
   },

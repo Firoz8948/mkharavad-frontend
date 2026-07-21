@@ -24,7 +24,7 @@ export const deleteProduct = (id) => adminApi.delete(`/admin/products/${id}`);
 
 export const uploadProductImages = (id, formData) =>
   adminApi.post(`/admin/products/${id}/images`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 120000,
   });
 
 export const removeProductImage = (id, imageUrl) =>

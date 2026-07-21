@@ -8,7 +8,7 @@ import Logo from "@/components/Logo/Logo";
 import styles from "./login.module.css";
 
 export default function AdminLoginPage() {
-  const [username] = useState("admin");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,13 +19,13 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!password) {
-      setError("Please enter password.");
+    if (!username.trim() || !password) {
+      setError("Please enter username and password.");
       return;
     }
     setLoading(true);
     try {
-      await login(username, password);
+      await login(username.trim(), password);
       router.replace("/admin/dashboard");
     } catch (err) {
       setError(
@@ -72,8 +72,11 @@ export default function AdminLoginPage() {
             <input
               className={styles.input}
               type="text"
+              placeholder="Enter username"
               value={username}
-              readOnly
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoFocus
             />
           </div>
 
@@ -87,7 +90,6 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                autoFocus
               />
               <button
                 type="button"

@@ -6,6 +6,7 @@ import { FiShoppingCart } from "react-icons/fi";
 
 import { useCart } from "@/hooks/useCart";
 import { formatPrice } from "@/utils/formatPrice";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./VideoProducts.module.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -85,7 +86,7 @@ function VideoProductCard({ item, onAdd }) {
           <>
             <video
               className={styles.video}
-              src={`${API_BASE}${item.video_url}`}
+              src={mediaUrl(item.video_url, API_BASE)}
               loop
               muted
               playsInline

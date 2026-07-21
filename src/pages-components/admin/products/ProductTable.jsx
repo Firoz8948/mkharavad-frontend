@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 import { formatPrice } from "@/utils/formatPrice";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./ProductTable.module.css";
 
 export default function ProductTable({ products = [], onDelete }) {
@@ -32,7 +33,7 @@ export default function ProductTable({ products = [], onDelete }) {
                   <span className={styles.thumb}>
                     {p.images?.[0] ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.images[0]} alt={p.name} />
+                      <img src={mediaUrl(p.images[0])} alt={p.name} />
                     ) : (
                       "🥜"
                     )}

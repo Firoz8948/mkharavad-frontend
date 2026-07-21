@@ -7,7 +7,7 @@ import {
   deleteProduct,
   getAdminCategories,
 } from "@/services/adminService";
-import { API_URL as API_BASE } from "@/utils/constants";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./products.module.css";
 
 export default function AdminProductsPage() {
@@ -161,7 +161,7 @@ export default function AdminProductsPage() {
                         <div className={styles.productThumb}>
                           {p.images?.[0] ? (
                             <img
-                              src={`${API_BASE}${p.images[0]}`}
+                              src={mediaUrl(p.images[0])}
                               alt={p.name}
                               onError={(e) => { e.target.src = "/assets/placeholder.webp"; }}
                             />
