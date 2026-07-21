@@ -2,8 +2,8 @@
    M KHARAVAD COMPANY - Global CSS
    ============================================ */
 
-/* ---------- GOOGLE FONTS IMPORT ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+/* Fonts are self-hosted via next/font in app/layout.jsx (Montserrat + Roboto).
+   Do not @import Google Fonts here — that often fails on production CDN/Vercel. */
 
 /* ---------- CSS VARIABLES ---------- */
 :root {
@@ -95,10 +95,10 @@
   --radius-xl: 32px;
   --radius-full: 9999px;
 
-  /* --- Typography --- */
-  --font-heading: 'Montserrat', sans-serif;
-  --font-body: 'Roboto', sans-serif;
-  --font-ui: 'Roboto', sans-serif;
+  /* --- Typography (next/font CSS variables from layout) --- */
+  --font-heading: var(--font-montserrat), 'Montserrat', system-ui, sans-serif;
+  --font-body: var(--font-roboto), 'Roboto', system-ui, sans-serif;
+  --font-ui: var(--font-roboto), 'Roboto', system-ui, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
 
   /* --- Font Sizes --- */

@@ -48,7 +48,7 @@
 }
 
 .brandName {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   font-weight: 700;
   color: #fff;
@@ -87,7 +87,7 @@
 }
 
 .stepTitle {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-heading);
   font-size: 1.5rem;
   color: #1a0a10;
   margin: 0 0 8px;
@@ -248,7 +248,7 @@
   outline: none;
   transition: all 0.2s;
   caret-color: var(--color-primary);
-  font-family: "DM Sans", sans-serif;
+  font-family: var(--font-ui);
 }
 
 .otpInput:focus {
