@@ -99,6 +99,7 @@
   --font-heading: var(--font-montserrat), 'Montserrat', system-ui, sans-serif;
   --font-body: var(--font-roboto), 'Roboto', system-ui, sans-serif;
   --font-ui: var(--font-roboto), 'Roboto', system-ui, sans-serif;
+  --font-product-title: var(--font-fraunces), 'Fraunces', Georgia, serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
 
   /* --- Font Sizes --- */

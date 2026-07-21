@@ -1,4 +1,4 @@
-import { Montserrat, Roboto } from "next/font/google";
+import { Fraunces, Montserrat, Roboto } from "next/font/google";
 
 import "@/styles/globals.css";
 
@@ -22,6 +22,13 @@ const roboto = Roboto({
   display: "swap",
 });
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
 export const metadata = {
   title: `${BRAND.name} - ${BRAND.tagline}`,
   description:
@@ -35,7 +42,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${roboto.variable}`}>
+    <html
+      lang="en"
+      className={`${montserrat.variable} ${roboto.variable} ${fraunces.variable}`}
+    >
       <body>
         <AuthProvider>
           <CartProvider>
