@@ -12,6 +12,23 @@ export default function ProductImages({ images = [], name }) {
 
   return (
     <div className={styles.wrap}>
+      {resolved.length > 1 && (
+        <div className={styles.thumbs}>
+          {resolved.map((img, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${styles.thumb} ${i === active ? styles.activeThumb : ""}`}
+              onClick={() => setActive(i)}
+              aria-label={`View image ${i + 1}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={img} alt={`${name} ${i + 1}`} />
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className={styles.main}>
         {hasImages ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -20,21 +37,6 @@ export default function ProductImages({ images = [], name }) {
           <div className={styles.placeholder}>🥜</div>
         )}
       </div>
-
-      {resolved.length > 1 && (
-        <div className={styles.thumbs}>
-          {resolved.map((img, i) => (
-            <button
-              key={i}
-              className={`${styles.thumb} ${i === active ? styles.activeThumb : ""}`}
-              onClick={() => setActive(i)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img} alt={`${name} ${i + 1}`} />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

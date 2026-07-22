@@ -14,7 +14,10 @@ function mediaUrl(path) {
   return `${API_BASE}${path}`;
 }
 
-export default function SubCategoryStrip() {
+export default function SubCategoryStrip({
+  title = "Shop by Subcategory",
+  tag = "Explore",
+}) {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
@@ -43,8 +46,8 @@ export default function SubCategoryStrip() {
       <section className={`section ${styles.wrap}`}>
         <div className="container">
           <div className={styles.header}>
-            <span className="section-tag">Explore</span>
-            <h2 className="section-title">Shop by Subcategory</h2>
+            <span className="section-tag">{tag}</span>
+            <h2 className="section-title">{title}</h2>
           </div>
           <div className={styles.skeletonRow}>
             {[...Array(5)].map((_, i) => (
@@ -63,8 +66,8 @@ export default function SubCategoryStrip() {
       <div className="container">
         <div className={styles.header}>
           <div className={styles.headerText}>
-            <span className="section-tag">Explore</span>
-            <h2 className={`section-title ${styles.title}`}>Shop by Subcategory</h2>
+            <span className="section-tag">{tag}</span>
+            <h2 className={`section-title ${styles.title}`}>{title}</h2>
           </div>
           <div className={styles.arrows}>
             <button

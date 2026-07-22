@@ -51,7 +51,7 @@
 .panel {
   padding: 1rem 1.15rem 1.15rem;
   line-height: 1.7;
-  color: var(--color-text);
+  color: #0f172a;
 }
 .panel p {
   margin: 0 0 0.5rem;

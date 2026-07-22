@@ -3,36 +3,72 @@
 import { useEffect, useState } from "react";
 
 import ProductCard from "@/components/ProductCard/ProductCard";
+import { getSubCategoryProducts } from "@/services/categoryService";
 import { productService } from "@/services/productService";
 import styles from "./RelatedProducts.module.css";
 
-export default function RelatedProducts({ category, currentId }) {
+export default function RelatedProducts({ product }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    if (!category) return;
+    if (!product) return;
     let active = true;
-    productService
-      .getByCategory(category, { page: 1, page_size: 5 })
-      .then((res) => {
-        if (!active) return;
-        setProducts((res.items || []).filter((p) => p.id !== currentId).slice(0, 4));
-      })
-      .catch(() => active && setProducts([]));
+    const currentId = String(product.id);
+
+    async function load() {
+      try {
+        if (product.subcategory_id) {
+          const res = await getSubCategoryProducts(product.subcategory_id, {
+            page: 1,
+            limit: 8,
+          });
+          const list = (res.data?.products || res.products || []).filter(
+            (p) => String(p.id) !== currentId
+          );
+          if (list.length) {
+            if (active) setProducts(list.slice(0, 4));
+            return;
+          }
+        }
+
+        const params = { page: 1, page_size: 8, sort: "newest" };
+        if (product.category_slug) {
+          params.category_slug = product.category_slug;
+        } else if (product.category) {
+          const catName = product.category.includes(" / ")
+            ? product.category.split(" / ")[0]
+            : product.category;
+          params.category = catName;
+        }
+
+        const res = await productService.getProducts(params);
+        const list = (res.items || []).filter(
+          (p) => String(p.id) !== currentId
+        );
+        if (active) setProducts(list.slice(0, 4));
+      } catch {
+        if (active) setProducts([]);
+      }
+    }
+
+    load();
     return () => {
       active = false;
     };
-  }, [category, currentId]);
+  }, [product]);
 
   if (!products.length) return null;
 
   return (
     <section className={styles.wrap}>
-      <h2>Related Products</h2>
-      <div className={styles.grid}>
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+      <div className="container">
+        <h2 className={styles.title}>You may also like</h2>
+        <p className={styles.sub}>More picks from the same collection</p>
+        <div className={styles.grid}>
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
       </div>
     </section>
   );

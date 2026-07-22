@@ -531,11 +531,16 @@ export default function ProductForm({ mode = "add", productId = null }) {
                 <label className={styles.label}>Description</label>
                 <textarea
                   className={styles.textarea}
-                  placeholder="Describe the material, dimensions, finish, care, and cooking uses…"
-                  rows={5}
+                  placeholder={`Supports plain text or HTML.\n\nExample:\n<ul>\n  <li>Pre-seasoned iron surface</li>\n  <li>Even heat distribution</li>\n</ul>\n<img src="https://mkharavad-media.b-cdn.net/products/your-image.webp" alt="Detail" />`}
+                  rows={8}
                   value={form.description}
                   onChange={(e) => setField("description", e.target.value)}
                 />
+                <span className={styles.hint}>
+                  You can use HTML for bullet lists and images (upload image to
+                  Bunny first, then paste the CDN URL in an{" "}
+                  <code>&lt;img src=&quot;...&quot; /&gt;</code> tag).
+                </span>
               </div>
             </div>
 

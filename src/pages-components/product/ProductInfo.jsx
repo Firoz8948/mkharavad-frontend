@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FiMinus, FiPlus, FiStar } from "react-icons/fi";
+import { FiMinus, FiPlus } from "react-icons/fi";
 
 import Button from "@/components/Button/Button";
 import { useCart } from "@/hooks/useCart";
@@ -16,6 +16,10 @@ import styles from "./ProductInfo.module.css";
 function resolveOptionWeight(option) {
   if (option.weight && option.weight > 0) return option.weight;
   return parseWeightGrams(option.name);
+}
+
+function isHtmlDescription(text) {
+  return /<\/?[a-z][\s\S]*>/i.test(text || "");
 }
 
 export default function ProductInfo({ product }) {
@@ -43,7 +47,9 @@ export default function ProductInfo({ product }) {
 
   const displayPrice = selectedOption?.price ?? product.price;
   const displayMrp = selectedOption?.mrp ?? product.mrp;
-  const displayStock = selectedOption ? (selectedOption.stock ?? 0) : (product.stock ?? 0);
+  const displayStock = selectedOption
+    ? selectedOption.stock ?? 0
+    : product.stock ?? 0;
   const weightGrams = selectedOption
     ? resolveOptionWeight(selectedOption)
     : product.weight
@@ -52,6 +58,12 @@ export default function ProductInfo({ product }) {
 
   const discount = calcDiscount(displayMrp, displayPrice);
   const outOfStock = displayStock <= 0;
+  const categoryOnly = (product.category || "").includes(" / ")
+    ? product.category.split(" / ")[0]
+    : product.category;
+  const description =
+    product.description ||
+    "Premium iron cookware designed for reliable everyday cooking.";
 
   const handleAdd = async () => {
     setAdding(true);
@@ -76,19 +88,10 @@ export default function ProductInfo({ product }) {
 
   return (
     <div className={styles.info}>
-      <span className={styles.category}>
-        {(product.category || "").includes(" / ")
-          ? product.category.split(" / ")[0]
-          : product.category}
-      </span>
+      {categoryOnly ? (
+        <span className={styles.category}>{categoryOnly}</span>
+      ) : null}
       <h1 className={styles.name}>{product.name}</h1>
-
-      <div className={styles.rating}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <FiStar key={i} fill="var(--color-accent)" color="var(--color-accent)" size={15} />
-        ))}
-        <span>(120 reviews)</span>
-      </div>
 
       <div className={styles.priceRow}>
         <span className={styles.price}>{formatPrice(displayPrice)}</span>
@@ -126,7 +129,6 @@ export default function ProductInfo({ product }) {
       {weightGrams ? (
         <p className={styles.weight}>
           Pack weight: {formatWeightGrams(weightGrams)}
-          <span className={styles.weightNote}> (used for shipping)</span>
         </p>
       ) : product.weight ? (
         <p className={styles.weight}>
@@ -134,27 +136,30 @@ export default function ProductInfo({ product }) {
         </p>
       ) : null}
 
-      <p className={styles.description}>
-        {product.description ||
-          "Premium iron cookware designed for reliable everyday cooking."}
-      </p>
-
       <div className={styles.stock}>
         {outOfStock ? (
           <span className={styles.out}>Out of Stock</span>
         ) : (
-          <span className={styles.in}>In Stock ({displayStock} available)</span>
+          <span className={styles.in}>In Stock · {displayStock} left</span>
         )}
       </div>
 
       {!outOfStock && (
         <div className={styles.actions}>
           <div className={styles.qty}>
-            <button onClick={() => setQty((q) => Math.max(1, q - 1))}>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              aria-label="Decrease quantity"
+            >
               <FiMinus />
             </button>
             <span>{qty}</span>
-            <button onClick={() => setQty((q) => Math.min(displayStock, q + 1))}>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.min(displayStock, q + 1))}
+              aria-label="Increase quantity"
+            >
               <FiPlus />
             </button>
           </div>
@@ -163,6 +168,18 @@ export default function ProductInfo({ product }) {
           </Button>
         </div>
       )}
+
+      <div className={styles.descBlock}>
+        <h2 className={styles.descTitle}>About this product</h2>
+        {isHtmlDescription(description) ? (
+          <div
+            className={styles.descriptionHtml}
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
+        ) : (
+          <p className={styles.description}>{description}</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -5,11 +5,15 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 
 import Loader from "@/components/Loader/Loader";
+import Testimonials from "@/pages-components/home/Testimonials";
+import SubCategoryStrip from "@/pages-components/home/SubCategoryStrip";
+import VideoProducts from "@/pages-components/home/VideoProducts";
 import {
+  ProductBenefitIcons,
   ProductImages,
   ProductInfo,
   ProductMetafields,
-  ProductReviews,
+  ProductTrustBar,
   RelatedProducts,
 } from "@/pages-components/product";
 import { productService } from "@/services/productService";
@@ -49,21 +53,39 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="container section">
-      <nav className={styles.breadcrumb}>
-        <Link href="/">Home</Link> / <Link href="/shop">Shop</Link> /{" "}
-        <span>{product.name}</span>
-      </nav>
+    <div className={styles.page}>
+      <div className="container">
+        <nav className={styles.breadcrumb}>
+          <Link href="/">Home</Link>
+          <span>/</span>
+          <Link href="/shop">Shop</Link>
+          <span>/</span>
+          <span className={styles.crumbCurrent}>{product.name}</span>
+        </nav>
 
-      <div className={styles.top}>
-        <ProductImages images={product.images} name={product.name} />
-        <ProductInfo product={product} />
+        <div className={styles.top}>
+          <ProductImages images={product.images} name={product.name} />
+          <ProductInfo product={product} />
+        </div>
+
+        <ProductTrustBar />
+        <ProductBenefitIcons />
+
+        <ProductMetafields product={product} />
       </div>
 
-      <ProductMetafields product={product} />
+      <VideoProducts />
 
-      <ProductReviews />
-      <RelatedProducts category={product.category} currentId={product.id} />
+      <RelatedProducts product={product} />
+
+      <Testimonials />
+
+      <div className={styles.subcats}>
+        <SubCategoryStrip
+          title="Shop our other collections"
+          tag="Browse more"
+        />
+      </div>
     </div>
   );
 }

@@ -1,139 +1,204 @@
 .info {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
+
 .category {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-accent-dark);
-  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--secondary, #f26a21);
+  font-weight: 700;
 }
+
 .name {
   font-family: var(--font-product-title);
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+  font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.25;
+  color: #0f172a;
+  margin: 0;
 }
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-.rating span {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  margin-left: 0.5rem;
-}
+
 .priceRow {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
-  margin: 0.5rem 0;
+  flex-wrap: wrap;
+  gap: 0.65rem;
 }
+
 .price {
-  font-size: 1.8rem;
+  font-size: 1.65rem;
   font-weight: 800;
-  color: var(--color-primary-dark);
+  color: #041d56;
 }
+
 .mrp {
-  font-size: 1.1rem;
-  color: var(--color-text-muted);
+  font-size: 1rem;
+  color: #64748b;
   text-decoration: line-through;
 }
+
 .save {
-  color: var(--color-success);
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.weight {
-  color: var(--color-text-muted);
+  color: #15803d;
+  font-weight: 700;
   font-size: 0.9rem;
 }
-.weightNote {
-  font-size: 0.8rem;
-  opacity: 0.85;
+
+.weight {
+  color: #475569;
+  font-size: 0.88rem;
+  margin: 0;
 }
+
 .variants {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin: 0.25rem 0;
+  gap: 0.45rem;
 }
+
 .variantLabel {
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: #0f172a;
 }
+
 .variantOptions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
+
 .variantBtn {
-  padding: 0.45rem 0.9rem;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.85rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
   background: #fff;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  color: #0f172a;
 }
-.variantBtn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-}
+
 .variantBtnActive {
-  border-color: var(--color-primary-dark);
-  background: var(--color-bg);
-  color: var(--color-primary-dark);
+  border-color: #041d56;
+  background: #041d56;
+  color: #fff;
   font-weight: 700;
 }
+
 .variantBtnDisabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
   text-decoration: line-through;
 }
-.description {
-  color: var(--color-text);
-  line-height: 1.7;
-}
+
 .stock .in {
-  color: var(--color-success);
-  font-weight: 600;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
+
 .stock .out {
-  color: var(--color-danger);
-  font-weight: 600;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
+
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
+
 .qty {
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   overflow: hidden;
+  background: #fff;
 }
+
 .qty button {
-  background: var(--color-bg);
+  background: #f8fafc;
   border: none;
-  width: 42px;
-  height: 46px;
+  width: 40px;
+  height: 44px;
   display: grid;
   place-items: center;
+  cursor: pointer;
+  color: #0f172a;
 }
-.qty button:hover {
-  background: var(--color-border);
-}
+
 .qty span {
-  width: 48px;
+  width: 44px;
   text-align: center;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.descBlock {
+  margin-top: 0.35rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.descTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.55rem;
+}
+
+.description {
+  color: #0f172a;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.descriptionHtml {
+  color: #0f172a;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.descriptionHtml :global(ul),
+.descriptionHtml :global(ol) {
+  margin: 0.4rem 0 0.6rem 1.15rem;
+  padding: 0;
+}
+
+.descriptionHtml :global(li) {
+  margin-bottom: 0.35rem;
+  color: #0f172a;
+}
+
+.descriptionHtml :global(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 0.65rem 0;
+  display: block;
+}
+
+.descriptionHtml :global(p) {
+  margin: 0 0 0.65rem;
+  color: #0f172a;
+}
+
+.descriptionHtml :global(a) {
+  color: #041d56;
   font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .price {
+    font-size: 1.4rem;
+  }
 }
