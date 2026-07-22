@@ -76,7 +76,11 @@ export default function ProductInfo({ product }) {
 
   return (
     <div className={styles.info}>
-      <span className={styles.category}>{product.category}</span>
+      <span className={styles.category}>
+        {(product.category || "").includes(" / ")
+          ? product.category.split(" / ")[0]
+          : product.category}
+      </span>
       <h1 className={styles.name}>{product.name}</h1>
 
       <div className={styles.rating}>

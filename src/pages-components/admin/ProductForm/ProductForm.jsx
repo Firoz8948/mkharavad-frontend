@@ -296,7 +296,7 @@ export default function ProductForm({ mode = "add", productId = null }) {
     price: "",
     mrp: "",
     category_id: "",
-    subcategory_id: "",
+    subcategory_ids: [],
     stock: "",
     unit: "piece",
     weight: "",
@@ -330,7 +330,7 @@ export default function ProductForm({ mode = "add", productId = null }) {
               : {
                   ...prev,
                   category_id: String(cat.id),
-                  subcategory_id: firstSub ? String(firstSub.id) : "",
+                  subcategory_ids: firstSub ? [String(firstSub.id)] : [],
                 }
           );
         }
@@ -349,13 +349,19 @@ export default function ProductForm({ mode = "add", productId = null }) {
       getAdminProduct(productId)
         .then((res) => {
           const p = res.data;
+          const ids =
+            Array.isArray(p.subcategory_ids) && p.subcategory_ids.length
+              ? p.subcategory_ids.map(String)
+              : p.subcategory_id
+                ? [String(p.subcategory_id)]
+                : [];
           setForm({
             name: p.name || "",
             description: p.description || "",
             price: p.price || "",
             mrp: p.mrp || "",
             category_id: p.category_id ? String(p.category_id) : "",
-            subcategory_id: p.subcategory_id ? String(p.subcategory_id) : "",
+            subcategory_ids: ids,
             stock: p.stock || "",
             unit: p.unit || "piece",
             weight: p.weight || "",
@@ -387,8 +393,23 @@ export default function ProductForm({ mode = "add", productId = null }) {
     if (Number(form.price) > Number(form.mrp))
       e.price = "Selling price cannot exceed MRP";
     if (!form.category_id) e.category_id = "Category required";
-    if (!form.subcategory_id) e.subcategory_id = "Subcategory required";
+    if (!form.subcategory_ids?.length)
+      e.subcategory_ids = "Select at least one subcategory";
     return e;
+  };
+
+  const toggleSubcategory = (id) => {
+    const sid = String(id);
+    setForm((prev) => {
+      const has = prev.subcategory_ids.includes(sid);
+      const subcategory_ids = has
+        ? prev.subcategory_ids.filter((x) => x !== sid)
+        : [...prev.subcategory_ids, sid];
+      return { ...prev, subcategory_ids };
+    });
+    if (errors.subcategory_ids) {
+      setErrors((prev) => ({ ...prev, subcategory_ids: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -404,8 +425,9 @@ export default function ProductForm({ mode = "add", productId = null }) {
         price: parseFloat(form.price),
         mrp: parseFloat(form.mrp),
         category: selectedCategory?.name || "",
-        subcategory_id: form.subcategory_id
-          ? parseInt(form.subcategory_id, 10)
+        subcategory_ids: form.subcategory_ids.map((id) => parseInt(id, 10)),
+        subcategory_id: form.subcategory_ids[0]
+          ? parseInt(form.subcategory_ids[0], 10)
           : null,
         stock: parseInt(form.stock) || 0,
         unit: form.unit,
@@ -599,7 +621,7 @@ export default function ProductForm({ mode = "add", productId = null }) {
                     setForm((prev) => ({
                       ...prev,
                       category_id: catId,
-                      subcategory_id: firstSub ? String(firstSub.id) : "",
+                      subcategory_ids: firstSub ? [String(firstSub.id)] : [],
                     }));
                   }}
                 >
@@ -621,27 +643,34 @@ export default function ProductForm({ mode = "add", productId = null }) {
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>Subcategory *</label>
-                <select
-                  className={`${styles.select} ${errors.subcategory_id ? styles.inputError : ""}`}
-                  value={form.subcategory_id}
-                  onChange={(e) => setField("subcategory_id", e.target.value)}
-                  disabled={!form.category_id}
-                >
-                  <option value="">Select subcategory</option>
-                  {subcategoryOptions.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
+                <label className={styles.label}>Subcategories *</label>
+                <p className={styles.hint}>
+                  Select one or more. Include &quot;All …&quot; if the product should
+                  also appear there.
+                </p>
+                <div className={styles.subCheckList}>
+                  {subcategoryOptions.map((s) => {
+                    const checked = form.subcategory_ids.includes(String(s.id));
+                    return (
+                      <label key={s.id} className={styles.subCheck}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={!form.category_id}
+                          onChange={() => toggleSubcategory(s.id)}
+                        />
+                        <span>{s.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
                 {form.category_id && subcategoryOptions.length === 0 && (
                   <span className={styles.hint}>
                     This category has no subcategories. Add one under Categories.
                   </span>
                 )}
-                {errors.subcategory_id && (
-                  <span className={styles.errMsg}>{errors.subcategory_id}</span>
+                {errors.subcategory_ids && (
+                  <span className={styles.errMsg}>{errors.subcategory_ids}</span>
                 )}
               </div>
 

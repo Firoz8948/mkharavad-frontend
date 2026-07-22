@@ -44,16 +44,8 @@
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-card);
-  transition: var(--transition-normal);
   aspect-ratio: 9 / 16;
   max-height: 480px;
-}
-
-@media (hover: hover) {
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
 }
 
 /* Video area */
@@ -81,13 +73,6 @@
   background: rgba(0, 0, 0, 0.35);
   border: none;
   cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-@media (hover: hover) {
-  .playBtn:hover {
-    background: rgba(0, 0, 0, 0.5);
-  }
 }
 
 .playBtn svg {
@@ -204,14 +189,7 @@
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: var(--transition-fast);
   white-space: nowrap;
-}
-
-@media (hover: hover) {
-  .addBtn:hover:not(:disabled) {
-    background: var(--btn-primary-hover);
-  }
 }
 
 .addBtn:disabled {

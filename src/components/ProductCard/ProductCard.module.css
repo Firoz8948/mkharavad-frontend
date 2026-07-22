@@ -5,17 +5,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: var(--transition-normal);
   box-shadow: var(--shadow-card);
   text-decoration: none;
-}
-
-@media (hover: hover) {
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--secondary-hover);
-  }
 }
 
 .imageWrap {
@@ -36,13 +27,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-@media (hover: hover) {
-  .card:hover .image {
-    transform: scale(1.05);
-  }
 }
 
 .placeholder {
@@ -144,13 +128,6 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  transition: var(--transition-fast);
-}
-
-@media (hover: hover) {
-  .addBtn:hover:not(:disabled) {
-    background: var(--color-orange);
-  }
 }
 
 .addBtn:disabled {

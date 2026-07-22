@@ -28,12 +28,12 @@
 @media (max-width: 860px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .grid {
-    gap: var(--space-3);
+    gap: 6px;
   }
 }

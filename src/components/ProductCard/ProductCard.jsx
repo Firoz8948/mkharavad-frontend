@@ -15,6 +15,10 @@ export default function ProductCard({ product }) {
   const listing = getProductListingInfo(product);
   const discount = calcDiscount(listing.mrp, listing.price);
   const outOfStock = listing.outOfStock;
+  const categoryLabel = product.category || "";
+  const categoryOnly = categoryLabel.includes(" / ")
+    ? categoryLabel.split(" / ")[0]
+    : categoryLabel;
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -36,7 +40,9 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className={styles.body}>
-        <span className={styles.category}>{product.category}</span>
+        {categoryOnly ? (
+          <span className={styles.category}>{categoryOnly}</span>
+        ) : null}
         <h3 className={styles.name}>{product.name}</h3>
         {product.weight ? (
           <span className={styles.weight}>
