@@ -32,7 +32,7 @@ export default function OurStory() {
         <div className={styles.content}>
           <p className="section-tag">Our Journey</p>
           <h2 className={styles.title}>
-            From Mohan Enterprise to kitchens across India
+            From Mohan Kharavad to kitchens across India
           </h2>
           <p className={styles.lead}>
             In 2012, Mohan Kharavad established {BRAND.name} with a clear
