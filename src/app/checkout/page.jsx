@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -12,7 +12,7 @@ import { useCart } from "@/hooks/useCart";
 import { updateProfile } from "@/services/authService";
 import { orderService } from "@/services/orderService";
 import { paymentService } from "@/services/paymentService";
-import { BRAND } from "@/utils/constants";
+import { BRAND, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_CHARGE } from "@/utils/constants";
 import { isValidPincode, required } from "@/utils/validators";
 import styles from "./checkout.module.css";
 
@@ -106,6 +106,30 @@ function buildCheckoutPayload(cart, form, promoCode) {
   };
 }
 
+function resolveShippingFromQuote(quote, subtotal, kind) {
+  if (!quote) {
+    return subtotal >= FREE_SHIPPING_THRESHOLD || subtotal <= 0
+      ? 0
+      : FLAT_SHIPPING_CHARGE;
+  }
+  if (kind === "cod") {
+    if (quote.cod_shipping_charge != null) return quote.cod_shipping_charge;
+    if (quote.cod_rate != null) {
+      const threshold = quote.free_shipping_threshold ?? FREE_SHIPPING_THRESHOLD;
+      return subtotal >= threshold ? 0 : quote.cod_rate;
+    }
+  } else {
+    if (quote.prepaid_shipping_charge != null) return quote.prepaid_shipping_charge;
+    if (quote.prepaid_rate != null) {
+      const threshold = quote.free_shipping_threshold ?? FREE_SHIPPING_THRESHOLD;
+      return subtotal >= threshold ? 0 : quote.prepaid_rate;
+    }
+  }
+  return subtotal >= FREE_SHIPPING_THRESHOLD || subtotal <= 0
+    ? 0
+    : FLAT_SHIPPING_CHARGE;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, loading: cartLoading, clearCart } = useCart();
@@ -116,7 +140,12 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [promo, setPromo] = useState(null);
+  const [shippingQuote, setShippingQuote] = useState(null);
   const prefilledRef = useRef(false);
+
+  const handleShippingQuoteChange = useCallback((quote) => {
+    setShippingQuote(quote);
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -124,7 +153,6 @@ export default function CheckoutPage() {
     }
   }, [authLoading, isAuthenticated]);
 
-  // Always fetch latest profile (with saved address) when entering checkout
   useEffect(() => {
     if (isAuthenticated) {
       prefilledRef.current = false;
@@ -132,7 +160,6 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, refresh]);
 
-  // Prefill once when profile data is available
   useEffect(() => {
     if (!user || prefilledRef.current) return;
     setForm(formFromUser(user));
@@ -196,7 +223,7 @@ export default function CheckoutPage() {
         contact: form.phone,
         email: form.email || "",
       },
-      theme: { color: "#F26A21" },
+      theme: { color: "#041D56" },
       handler: async (response) => {
         try {
           const result = await paymentService.verify({
@@ -291,8 +318,15 @@ export default function CheckoutPage() {
     );
   }
 
+  const subtotal = cart.total_amount;
+  const prepaidShipping = resolveShippingFromQuote(shippingQuote, subtotal, "prepaid");
+  const codShipping = resolveShippingFromQuote(shippingQuote, subtotal, "cod");
+  const hasLocation =
+    (form.state && form.state.trim()) ||
+    String(form.pincode || "").replace(/\D/g, "").length === 6;
+
   return (
-    <div className="container section">
+    <div className={`container section ${styles.page}`}>
       <h1 className={styles.heading}>Checkout</h1>
       <p className={styles.subtitle}>
         Signed in as +91 {user?.phone}.
@@ -301,27 +335,38 @@ export default function CheckoutPage() {
           : " Complete your delivery details below."}
       </p>
       <div className={styles.layout}>
-        <div className={styles.left}>
-          <AddressForm
-            address={form}
-            onChange={setForm}
-            phoneReadOnly
-            onAddNewAddress={handleAddNewAddress}
-          />
-          <PaymentSection
-            method={method}
-            onChange={setMethod}
-            onPlaceOrder={handlePlaceOrder}
-            loading={placing}
-          />
+        <div className={styles.flow}>
+          <section className={styles.step} data-step="shipping">
+            <AddressForm
+              address={form}
+              onChange={setForm}
+              phoneReadOnly
+              onAddNewAddress={handleAddNewAddress}
+            />
+          </section>
+
+          <section className={styles.step} data-step="payment">
+            <PaymentSection
+              method={method}
+              onChange={setMethod}
+              onPlaceOrder={handlePlaceOrder}
+              loading={placing}
+              prepaidShipping={hasLocation ? prepaidShipping : null}
+              codShipping={hasLocation ? codShipping : null}
+            />
+          </section>
+
+          <section className={`${styles.step} ${styles.summaryStep}`} data-step="summary">
+            <OrderSummary
+              promo={promo}
+              onPromoChange={setPromo}
+              pincode={form.pincode}
+              state={form.state}
+              paymentMethod={method}
+              onShippingQuoteChange={handleShippingQuoteChange}
+            />
+          </section>
         </div>
-        <OrderSummary
-          promo={promo}
-          onPromoChange={setPromo}
-          pincode={form.pincode}
-          state={form.state}
-          paymentMethod={method}
-        />
       </div>
     </div>
   );

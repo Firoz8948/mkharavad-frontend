@@ -1,24 +1,64 @@
+.page {
+  color: #0f172a;
+}
+
 .heading {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
+  color: #0f172a;
 }
+
 .subtitle {
-  color: var(--color-text-muted);
+  color: #64748b;
   margin-bottom: 1.5rem;
 }
+
 .layout {
+  width: 100%;
+}
+
+.flow {
   display: grid;
   grid-template-columns: 1fr 360px;
-  gap: 2rem;
+  gap: 1.5rem 2rem;
   align-items: start;
 }
-.left {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+
+.step[data-step="shipping"] {
+  grid-column: 1;
+  grid-row: 1;
 }
+
+.step[data-step="payment"] {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.summaryStep {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: sticky;
+  top: calc(var(--header-height) + 1rem);
+}
+
 @media (max-width: 860px) {
-  .layout {
+  .flow {
     grid-template-columns: 1fr;
+  }
+
+  .step[data-step="shipping"] {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .step[data-step="payment"] {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .summaryStep {
+    grid-column: 1;
+    grid-row: 3;
+    position: static;
   }
 }

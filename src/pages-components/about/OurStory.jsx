@@ -35,7 +35,7 @@ export default function OurStory() {
             From Mohan Enterprise to kitchens across India
           </h2>
           <p className={styles.lead}>
-            In 2012, Mohan Enterprise established {BRAND.name} with a clear
+            In 2012, Mohan Kharavad established {BRAND.name} with a clear
             purpose — bring pure, durable cast iron cookware to every kitchen,
             without chemical coatings or shortcuts.
           </p>

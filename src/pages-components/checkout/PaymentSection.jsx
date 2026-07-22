@@ -3,29 +3,45 @@
 import { FiCreditCard, FiDollarSign } from "react-icons/fi";
 
 import Button from "@/components/Button/Button";
+import { formatPrice } from "@/utils/formatPrice";
 import styles from "./PaymentSection.module.css";
 
-const METHODS = [
-  {
-    value: "razorpay",
-    label: "Pay Online (Razorpay)",
-    desc: "Cards, UPI, Netbanking & Wallets",
-    icon: FiCreditCard,
-  },
-  {
-    value: "cod",
-    label: "Cash on Delivery",
-    desc: "Pay when your order arrives",
-    icon: FiDollarSign,
-  },
-];
+function shippingLabel(amount) {
+  if (amount == null) return null;
+  if (amount === 0) return "Free shipping";
+  return `${formatPrice(amount)} shipping`;
+}
 
-export default function PaymentSection({ method, onChange, onPlaceOrder, loading }) {
+export default function PaymentSection({
+  method,
+  onChange,
+  onPlaceOrder,
+  loading,
+  prepaidShipping = null,
+  codShipping = null,
+}) {
+  const methods = [
+    {
+      value: "razorpay",
+      label: "Pay Online (Razorpay)",
+      desc: "Cards, UPI, Netbanking & Wallets",
+      icon: FiCreditCard,
+      shipping: prepaidShipping,
+    },
+    {
+      value: "cod",
+      label: "Cash on Delivery",
+      desc: "Pay when your order arrives",
+      icon: FiDollarSign,
+      shipping: codShipping,
+    },
+  ];
+
   return (
     <div className={styles.wrap}>
       <h3>Payment Method</h3>
       <div className={styles.options}>
-        {METHODS.map(({ value, label, desc, icon: Icon }) => (
+        {methods.map(({ value, label, desc, icon: Icon, shipping }) => (
           <label
             key={value}
             className={`${styles.option} ${method === value ? styles.active : ""}`}
@@ -38,9 +54,14 @@ export default function PaymentSection({ method, onChange, onPlaceOrder, loading
               onChange={() => onChange(value)}
             />
             <Icon size={22} />
-            <div>
-              <strong>{label}</strong>
-              <span>{desc}</span>
+            <div className={styles.optionBody}>
+              <div className={styles.optionTop}>
+                <strong>{label}</strong>
+                {shipping != null && (
+                  <span className={styles.shipBadge}>{shippingLabel(shipping)}</span>
+                )}
+              </div>
+              <span className={styles.desc}>{desc}</span>
             </div>
           </label>
         ))}

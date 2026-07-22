@@ -16,8 +16,8 @@ const emptyForm = {
   name: "",
   is_all_india: false,
   states: [],
-  prepaid_rate: 49,
-  cod_rate: 79,
+  prepaid_rate: 0,
+  cod_rate: 100,
   free_shipping_threshold: 999,
   is_active: true,
 };
@@ -173,7 +173,7 @@ export default function AdminSettingsPage() {
               />
             </label>
             <label>
-              Prepaid rate (₹)
+              Prepaid order — shipping (₹)
               <input
                 type="number"
                 min={0}
@@ -182,11 +182,12 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setForm((p) => ({ ...p, prepaid_rate: e.target.value }))
                 }
+                placeholder="0"
                 required
               />
             </label>
             <label>
-              COD rate (₹)
+              COD order — shipping (₹)
               <input
                 type="number"
                 min={0}
@@ -195,6 +196,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setForm((p) => ({ ...p, cod_rate: e.target.value }))
                 }
+                placeholder="100"
                 required
               />
             </label>

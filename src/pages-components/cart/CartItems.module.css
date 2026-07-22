@@ -35,9 +35,10 @@
 }
 .name {
   font-weight: 600;
+  color: #0f172a;
 }
 .name:hover {
-  color: var(--color-primary);
+  color: #0f172a;
 }
 .weight {
   font-size: 0.78rem;
@@ -69,7 +70,7 @@
 }
 .subtotal {
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: #041d56;
   min-width: 80px;
   text-align: right;
 }

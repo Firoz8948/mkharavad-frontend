@@ -15,6 +15,7 @@ export default function OrderSummary({
   pincode = "",
   state = "",
   paymentMethod = "razorpay",
+  onShippingQuoteChange,
 }) {
   const { cart } = useCart();
   const subtotal = cart.total_amount;
@@ -31,21 +32,29 @@ export default function OrderSummary({
 
     if (!hasLocation || subtotal <= 0) {
       setZoneQuote(null);
+      onShippingQuoteChange?.(null);
       return;
     }
 
     const timer = setTimeout(async () => {
       setQuoting(true);
       try {
+        // One quote returns both prepaid + COD charges; payment method only picks which to show
         const res = await quoteShipping({
           subtotal,
           state: state || null,
           pincode: pin.length === 6 ? pin : null,
-          payment_method: paymentMethod === "cod" ? "cod" : "prepaid",
+          payment_method: "prepaid",
         });
-        if (!cancelled) setZoneQuote(res.data);
+        if (!cancelled) {
+          setZoneQuote(res.data);
+          onShippingQuoteChange?.(res.data);
+        }
       } catch {
-        if (!cancelled) setZoneQuote(null);
+        if (!cancelled) {
+          setZoneQuote(null);
+          onShippingQuoteChange?.(null);
+        }
       } finally {
         if (!cancelled) setQuoting(false);
       }
@@ -55,12 +64,30 @@ export default function OrderSummary({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [pincode, state, subtotal, paymentMethod]);
+  }, [pincode, state, subtotal, onShippingQuoteChange]);
 
   const fallbackShipping =
     subtotal >= FREE_SHIPPING_THRESHOLD || subtotal <= 0 ? 0 : FLAT_SHIPPING_CHARGE;
-  const baseShipping =
-    zoneQuote?.shipping_charge != null ? zoneQuote.shipping_charge : fallbackShipping;
+
+  const prepaidShipping =
+    zoneQuote?.prepaid_shipping_charge != null
+      ? zoneQuote.prepaid_shipping_charge
+      : zoneQuote?.prepaid_rate != null
+        ? subtotal >= (zoneQuote.free_shipping_threshold ?? FREE_SHIPPING_THRESHOLD)
+          ? 0
+          : zoneQuote.prepaid_rate
+        : fallbackShipping;
+
+  const codShipping =
+    zoneQuote?.cod_shipping_charge != null
+      ? zoneQuote.cod_shipping_charge
+      : zoneQuote?.cod_rate != null
+        ? subtotal >= (zoneQuote.free_shipping_threshold ?? FREE_SHIPPING_THRESHOLD)
+          ? 0
+          : zoneQuote.cod_rate
+        : fallbackShipping;
+
+  const baseShipping = paymentMethod === "cod" ? codShipping : prepaidShipping;
 
   const shipping =
     promo?.shipping_charge != null ? promo.shipping_charge : baseShipping;
@@ -98,13 +125,21 @@ export default function OrderSummary({
   };
 
   useEffect(() => {
-    // Zone rate changed — clear applied promo so user re-applies against new shipping
     if (promo?.code) {
       onPromoChange?.(null);
       setCodeInput("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoneQuote?.zone_id, zoneQuote?.rate]);
+  }, [zoneQuote?.zone_id, zoneQuote?.prepaid_rate, zoneQuote?.cod_rate]);
+
+  useEffect(() => {
+    // Shipping amount depends on payment method — drop promo so totals stay correct
+    if (promo?.code) {
+      onPromoChange?.(null);
+      setCodeInput("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentMethod]);
 
   return (
     <div className={styles.wrap}>
@@ -127,7 +162,7 @@ export default function OrderSummary({
             id="promo-code"
             value={codeInput}
             onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-            placeholder="FREESHIP"
+            placeholder=""
             disabled={!!promo}
           />
           {promo ? (
@@ -176,6 +211,21 @@ export default function OrderSummary({
       {!zoneQuote && !quoting && !(state || String(pincode).length === 6) && (
         <p className={styles.zoneNote}>Enter pincode to see zone shipping</p>
       )}
+
+      {paymentMethod === "cod" &&
+        !quoting &&
+        prepaidShipping !== codShipping && (
+          <p className={styles.switchHint}>
+            Choose <strong>Pay Online</strong> and get shipping for{" "}
+            <strong>
+              {prepaidShipping === 0 ? "Free" : formatPrice(prepaidShipping)}
+            </strong>
+            {codShipping > prepaidShipping
+              ? ` (save ${formatPrice(codShipping - prepaidShipping)})`
+              : ""}
+          </p>
+        )}
+
       <div className={`${styles.row} ${styles.total}`}>
         <span>Total</span>
         <span>{formatPrice(total)}</span>

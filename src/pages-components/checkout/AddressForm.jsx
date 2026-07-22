@@ -42,7 +42,7 @@ export default function AddressForm({
   return (
     <div className={styles.wrap}>
       <div className={styles.head}>
-        <h3>Shipping Address</h3>
+        <h3>Shipping Details</h3>
         {onAddNewAddress ? (
           <button
             type="button"
@@ -59,7 +59,7 @@ export default function AddressForm({
           <label>Full Name</label>
           <input
             name="full_name"
-            placeholder="Rahul Sharma"
+            placeholder=""
             value={address.full_name || ""}
             onChange={handleChange}
           />
@@ -68,7 +68,7 @@ export default function AddressForm({
           <label>Mobile</label>
           <input
             name="phone"
-            placeholder="98765 43210"
+            placeholder=""
             value={address.phone || ""}
             onChange={handleChange}
             readOnly={phoneReadOnly}
@@ -80,7 +80,7 @@ export default function AddressForm({
           <label>Email (optional)</label>
           <input
             name="email"
-            placeholder="rahul@gmail.com"
+            placeholder=""
             value={address.email || ""}
             onChange={handleChange}
           />
@@ -90,7 +90,7 @@ export default function AddressForm({
           <label>Address Line 1</label>
           <input
             name="line1"
-            placeholder="House no, street"
+            placeholder=""
             value={address.line1 || ""}
             onChange={handleChange}
           />
@@ -100,7 +100,7 @@ export default function AddressForm({
           <label>Address Line 2</label>
           <input
             name="line2"
-            placeholder="Area, locality (optional)"
+            placeholder=""
             value={address.line2 || ""}
             onChange={handleChange}
           />
@@ -110,7 +110,7 @@ export default function AddressForm({
           <label>Landmark</label>
           <input
             name="landmark"
-            placeholder="Near temple / market (optional)"
+            placeholder=""
             value={address.landmark || ""}
             onChange={handleChange}
           />
@@ -120,7 +120,7 @@ export default function AddressForm({
           <label>Pin Code</label>
           <input
             name="pincode"
-            placeholder="401303"
+            placeholder=""
             inputMode="numeric"
             maxLength={6}
             value={address.pincode || ""}
@@ -137,7 +137,7 @@ export default function AddressForm({
           <label>City</label>
           <input
             name="city"
-            placeholder="City"
+            placeholder=""
             value={address.city || ""}
             onChange={handleChange}
           />
