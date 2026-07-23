@@ -7,7 +7,7 @@ export const SITE_URL = (
 
 export const OG_IMAGE =
   process.env.NEXT_PUBLIC_OG_IMAGE ||
-  "https://mkharavad-media.b-cdn.net/banners/ChatGPT%20Image%20Jul%2023%2C%202026%2C%2002_51_15%20PM.webp";
+  "https://mkharavad-media.b-cdn.net/banners/ChatGPT%20Image%20Jul%2023%2C%202026%2C%2002_51_15%20PM.jpg";
 
 export const SITE_NAME = BRAND.name;
 
