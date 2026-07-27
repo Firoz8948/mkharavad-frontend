@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
+import ReelsCategoryPreview from "@/components/ReelsCategoryPreview/ReelsCategoryPreview";
 import { getCategories } from "@/services/categoryService";
 import styles from "./CategorySection.module.css";
 
@@ -55,14 +56,7 @@ export default function CategorySection() {
     );
   }
 
-  const reelsCategory = {
-    id: "reels-hardcoded",
-    name: "Reels",
-    slug: "reels",
-    image_url: null,
-    is_reels: true,
-  };
-  const displayCategories = [...categories, reelsCategory];
+  if (!categories.length) return null;
 
   return (
     <section className={`section ${styles.wrap}`}>
@@ -93,41 +87,52 @@ export default function CategorySection() {
         </div>
 
         <div className={styles.desktopRow} ref={scrollRef}>
-          {displayCategories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={cat.is_reels ? "/reels" : `/shop?category=${cat.slug}`}
-              className={`${styles.catCard} ${cat.is_reels ? styles.reelsCard : ""}`}
-            >
-              <div className={styles.catImgWrap}>
-                {cat.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={mediaUrl(cat.image_url)}
-                    alt={cat.name}
-                    className={styles.catImg}
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                ) : null}
-                {!cat.image_url || cat.is_reels ? (
-                  <div className={styles.catPlaceholder}>
-                    {cat.is_reels ? "▶" : (cat.name || "?").charAt(0)}
-                  </div>
-                ) : null}
-              </div>
-              <span className={styles.catLabel}>{cat.name}</span>
-            </Link>
-          ))}
+          {categories.map((cat) => {
+            const isReels = !!cat.is_reels || cat.slug === "reels";
+            return (
+              <Link
+                key={cat.id}
+                href={isReels ? "/reels" : `/shop?category=${cat.slug}`}
+                className={`${styles.catCard} ${isReels ? styles.reelsCard : ""}`}
+              >
+                <div className={styles.catImgWrap}>
+                  {isReels ? (
+                    <ReelsCategoryPreview />
+                  ) : cat.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={mediaUrl(cat.image_url)}
+                      alt={cat.name}
+                      className={styles.catImg}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className={styles.catPlaceholder}>
+                      {(cat.name || "?").charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <span className={styles.catLabel}>{cat.name}</span>
+              </Link>
+            );
+          })}
         </div>
 
         <div className={styles.mobileList}>
-          {displayCategories.map((cat) => {
-            if (cat.is_reels) {
+          {categories.map((cat) => {
+            const isReels = !!cat.is_reels || cat.slug === "reels";
+            if (isReels) {
               return (
                 <Link key={cat.id} href="/reels" className={styles.accReelsLink}>
-                  <span>▶ Reels</span>
+                  <span className={styles.accReelsPreview}>
+                    <ReelsCategoryPreview />
+                  </span>
+                  <span className={styles.accReelsMeta}>
+                    <strong>{cat.name}</strong>
+                    <em>Watch & shop</em>
+                  </span>
                   <span aria-hidden>›</span>
                 </Link>
               );

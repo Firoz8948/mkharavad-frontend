@@ -12,6 +12,7 @@ import {
   getProductsForMapping,
   getCategory,
 } from "@/services/adminService";
+import ReelsCategoryPreview from "@/components/ReelsCategoryPreview/ReelsCategoryPreview";
 import styles from "./CategoryModal.module.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -24,6 +25,7 @@ function mediaUrl(path) {
 
 export default function CategoryModal({ category, onClose, onSuccess }) {
   const isEdit = !!category;
+  const isReels = !!(category?.is_reels || category?.slug === "reels");
   const fileRef = useRef();
   const subFileRef = useRef();
 
@@ -116,7 +118,7 @@ export default function CategoryModal({ category, onClose, onSuccess }) {
         setCategoryId(saved.id);
       }
 
-      if (imageFile && saved?.id) {
+      if (imageFile && saved?.id && !isReels) {
         const fd = new FormData();
         fd.append("file", imageFile);
         const imgRes = await uploadCategoryImage(saved.id, fd);
@@ -126,7 +128,7 @@ export default function CategoryModal({ category, onClose, onSuccess }) {
         setPreview(saved.image_url ? mediaUrl(saved.image_url) : preview);
       }
 
-      if (!isEdit && !category) {
+      if (!isReels && !isEdit && !category) {
         // stay open so user can add subcategories
         setActiveTab("subcategories");
         await refreshCategory(saved.id);
@@ -263,7 +265,9 @@ export default function CategoryModal({ category, onClose, onSuccess }) {
                 : "New Category"}
             </h2>
             <p className={styles.modalSub}>
-              Categories hold subcategories. Products map to subcategories only.
+              {isReels
+                ? "Reels category opens the video feed. Preview uses your first 4 video products."
+                : "Categories hold subcategories. Products map to subcategories only."}
             </p>
           </div>
           <button type="button" className={styles.closeBtn} onClick={onClose}>
@@ -279,17 +283,19 @@ export default function CategoryModal({ category, onClose, onSuccess }) {
           >
             Details
           </button>
-          <button
-            type="button"
-            className={`${styles.tab} ${activeTab === "subcategories" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("subcategories")}
-            disabled={!isEdit && !categoryId}
-          >
-            Subcategories
-            {subcategories.length > 0 && (
-              <span className={styles.tabBadge}>{subcategories.length}</span>
-            )}
-          </button>
+          {!isReels && (
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === "subcategories" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("subcategories")}
+              disabled={!isEdit && !categoryId}
+            >
+              Subcategories
+              {subcategories.length > 0 && (
+                <span className={styles.tabBadge}>{subcategories.length}</span>
+              )}
+            </button>
+          )}
         </div>
 
         <div className={styles.modalBody}>
@@ -356,36 +362,52 @@ export default function CategoryModal({ category, onClose, onSuccess }) {
               </div>
 
               <div className={styles.imagePanel}>
-                <label className={styles.label}>Category Image</label>
-                <div
-                  className={styles.imageDrop}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {preview ? (
-                    <img src={preview} alt="" className={styles.imagePreview} />
-                  ) : (
-                    <span>Click to upload image</span>
-                  )}
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImagePick}
-                />
-                {(imageUrl || imageFile) && (
-                  <button
-                    type="button"
-                    className={styles.bulkBtn}
-                    onClick={() => {
-                      setImageFile(null);
-                      setPreview(imageUrl ? mediaUrl(imageUrl) : "");
-                      if (!imageUrl) setPreview("");
-                    }}
-                  >
-                    Reset image
-                  </button>
+                <label className={styles.label}>
+                  {isReels ? "Category Preview" : "Category Image"}
+                </label>
+                {isReels ? (
+                  <>
+                    <div className={styles.reelsPreviewBox}>
+                      <ReelsCategoryPreview />
+                    </div>
+                    <p className={styles.reelsHint}>
+                      First 4 video products play here — 3 seconds each, looping.
+                      Playback pauses when this preview is off-screen.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className={styles.imageDrop}
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      {preview ? (
+                        <img src={preview} alt="" className={styles.imagePreview} />
+                      ) : (
+                        <span>Click to upload image</span>
+                      )}
+                    </div>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handleImagePick}
+                    />
+                    {(imageUrl || imageFile) && (
+                      <button
+                        type="button"
+                        className={styles.bulkBtn}
+                        onClick={() => {
+                          setImageFile(null);
+                          setPreview(imageUrl ? mediaUrl(imageUrl) : "");
+                          if (!imageUrl) setPreview("");
+                        }}
+                      >
+                        Reset image
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </form>

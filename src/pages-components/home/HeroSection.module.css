@@ -88,7 +88,7 @@
 .mobileStage {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   max-height: 72vh;
   overflow: hidden;
   background: #f3f3f3;

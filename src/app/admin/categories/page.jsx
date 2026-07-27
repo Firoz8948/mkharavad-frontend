@@ -8,6 +8,7 @@ import {
   deleteCategory,
 } from "@/services/adminService";
 import CategoryModal from "@/pages-components/admin/CategoryModal/CategoryModal";
+import ReelsCategoryPreview from "@/components/ReelsCategoryPreview/ReelsCategoryPreview";
 import styles from "./categories.module.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -52,6 +53,10 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (cat) => {
+    if (cat.is_reels || cat.slug === "reels") {
+      alert("Reels category cannot be deleted. You can hide it instead.");
+      return;
+    }
     if (
       !confirm(
         `Delete "${cat.name}" and all its subcategories? Products will be unmapped.`
@@ -63,8 +68,8 @@ export default function AdminCategoriesPage() {
     try {
       await deleteCategory(cat.id);
       fetchCategories();
-    } catch {
-      alert("Failed to delete category.");
+    } catch (e) {
+      alert(e?.response?.data?.detail || "Failed to delete category.");
     } finally {
       setDeleting(null);
     }
@@ -109,7 +114,9 @@ export default function AdminCategoriesPage() {
               className={`${styles.card} ${!cat.is_active ? styles.inactive : ""}`}
             >
               <div className={styles.imageWrap}>
-                {cat.image_url ? (
+                {cat.is_reels || cat.slug === "reels" ? (
+                  <ReelsCategoryPreview />
+                ) : cat.image_url ? (
                   <img
                     src={mediaUrl(cat.image_url)}
                     alt={cat.name}
@@ -127,9 +134,16 @@ export default function AdminCategoriesPage() {
 
               <div className={styles.cardBody}>
                 <div className={styles.cardTop}>
-                  <h3 className={styles.catName}>{cat.name}</h3>
+                  <h3 className={styles.catName}>
+                    {cat.name}
+                    {(cat.is_reels || cat.slug === "reels") && (
+                      <span className={styles.reelsTag}> Reels</span>
+                    )}
+                  </h3>
                   <span className={styles.productCount}>
-                    {cat.subcategory_count || 0} subcats
+                    {cat.is_reels || cat.slug === "reels"
+                      ? "Video feed"
+                      : `${cat.subcategory_count || 0} subcats`}
                   </span>
                 </div>
 
@@ -151,16 +165,20 @@ export default function AdminCategoriesPage() {
                   className={styles.editBtn}
                   onClick={() => handleEdit(cat)}
                 >
-                  Edit & Subcategories
+                  {cat.is_reels || cat.slug === "reels"
+                    ? "Edit Details"
+                    : "Edit & Subcategories"}
                 </button>
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(cat)}
-                  disabled={deleting === cat.id}
-                >
-                  {deleting === cat.id ? "…" : "Delete"}
-                </button>
+                {!(cat.is_reels || cat.slug === "reels") && (
+                  <button
+                    type="button"
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(cat)}
+                    disabled={deleting === cat.id}
+                  >
+                    {deleting === cat.id ? "…" : "Delete"}
+                  </button>
+                )}
               </div>
             </div>
           ))}

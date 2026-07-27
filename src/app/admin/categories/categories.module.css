@@ -130,6 +130,20 @@
   margin: 0;
 }
 
+.reelsTag {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #041d56;
+  background: rgba(4, 29, 86, 0.08);
+  padding: 2px 7px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
 .productCount {
   background: rgba(var(--heading-rgb), 0.1);
   color: var(--color-primary);

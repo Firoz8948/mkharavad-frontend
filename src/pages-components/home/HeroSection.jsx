@@ -10,8 +10,8 @@ import styles from "./HeroSection.module.css";
 const SLIDE_DURATION = 5000;
 
 /** Keep in sync with admin BannerManager crop preview. */
-export const DESKTOP_BANNER_ASPECT = 21 / 8;
-export const MOBILE_BANNER_ASPECT = 4 / 5;
+export const DESKTOP_BANNER_ASPECT = 21 / 8; // 2100×800
+export const MOBILE_BANNER_ASPECT = 1; // 1∶1
 
 function resolveImage(url) {
   if (!url) return "";

@@ -15,8 +15,19 @@ import styles from "./banners.module.css";
 
 /** Must match HeroSection.module.css aspect ratios. */
 const ASPECT = {
-  desktop: 21 / 8,
-  mobile: 4 / 5,
+  desktop: 21 / 8, // 2100×800
+  mobile: 1, // 1∶1
+};
+
+const SIZE_HINT = {
+  desktop: {
+    ratio: "21∶8",
+    pixels: "2100 × 800 px",
+  },
+  mobile: {
+    ratio: "1∶1",
+    pixels: "1080 × 1080 px",
+  },
 };
 
 function imageSrc(url) {
@@ -28,13 +39,16 @@ function imageSrc(url) {
 /**
  * Shows live (cover) crop + full image with cut zones dimmed.
  */
-function CropPreview({ src, aspect, deviceLabel }) {
+function CropPreview({ src, aspect, deviceLabel, sizeHint }) {
   const [nat, setNat] = useState(null);
 
   if (!src) {
     return (
       <div className={styles.previewEmpty}>
-        <span>No image — upload to see crop preview</span>
+        <span>
+          No image yet. Upload {sizeHint?.pixels || "recommended size"} (
+          {sizeHint?.ratio}) for a clean fit.
+        </span>
       </div>
     );
   }
@@ -71,6 +85,10 @@ function CropPreview({ src, aspect, deviceLabel }) {
 
   return (
     <div className={styles.cropBlock}>
+      <div className={styles.sizeSuggest}>
+        Suggested: <strong>{sizeHint?.pixels}</strong> · ratio{" "}
+        <strong>{sizeHint?.ratio}</strong>
+      </div>
       <div className={styles.cropLabel}>Live preview ({deviceLabel})</div>
       <div
         className={styles.liveFrame}
@@ -108,6 +126,7 @@ export default function BannerManager({ device }) {
   const [savingId, setSavingId] = useState(null);
   const isDesktop = device === "desktop";
   const aspect = ASPECT[device] || ASPECT.desktop;
+  const sizeHint = SIZE_HINT[device] || SIZE_HINT.desktop;
 
   const load = async () => {
     setLoading(true);
@@ -207,8 +226,12 @@ export default function BannerManager({ device }) {
             {isDesktop ? "Desktop Banner" : "Mobile Banner"}
           </h2>
           <p className={styles.subtitle}>
-            Image + optional link only. Preview shows exactly what visitors see
-            and which edges get cropped ({isDesktop ? "21∶8" : "4∶5"}).
+            Image + optional link only. Recommended size:{" "}
+            <strong>
+              {sizeHint.pixels}
+            </strong>{" "}
+            ({sizeHint.ratio}). Preview shows what visitors see and what gets
+            cropped.
           </p>
         </div>
         <button type="button" className={styles.addBtn} onClick={handleAdd}>
@@ -252,6 +275,7 @@ export default function BannerManager({ device }) {
                     src={imageSrc(slide.image_url)}
                     aspect={aspect}
                     deviceLabel={isDesktop ? "desktop" : "mobile"}
+                    sizeHint={sizeHint}
                   />
                   <label className={styles.uploadBtn}>
                     Upload image
