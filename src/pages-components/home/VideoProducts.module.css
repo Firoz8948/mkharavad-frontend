@@ -10,13 +10,17 @@
   text-align: center;
 }
 
+.rowWrap {
+  position: relative;
+  margin-top: var(--space-8);
+}
+
 .grid {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
   gap: 18px;
-  margin-top: var(--space-8);
-  padding-bottom: 15px;
+  padding: 4px 2px 15px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -25,6 +29,36 @@
 
 .grid::-webkit-scrollbar {
   display: none;
+}
+
+.navBtn {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+}
+
+.navBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.navBtnLeft {
+  left: -8px;
+}
+
+.navBtnRight {
+  right: -8px;
 }
 
 .skeletonCard {
@@ -46,9 +80,9 @@
   box-shadow: var(--shadow-card);
   aspect-ratio: 9 / 16;
   max-height: 460px;
+  cursor: pointer;
 }
 
-/* Video area */
 .videoWrap {
   position: absolute;
   inset: 0;
@@ -72,11 +106,6 @@
   justify-content: center;
   background: rgba(0, 0, 0, 0.28);
   pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.playHint svg {
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
 
 .videoPlaceholder {
@@ -109,7 +138,22 @@
   z-index: 3;
 }
 
-/* Card body */
+.shareBtn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 4;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
 .body {
   position: absolute;
   bottom: 0;
@@ -144,14 +188,16 @@
   color: #fff;
 }
 
-.desc {
-  font-size: var(--text-sm);
-  color: #ddd;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: 0;
+.cardRating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: #f5d78a;
+}
+
+.cardRating .reviews {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .footer {
@@ -181,25 +227,279 @@
   text-decoration: line-through;
 }
 
-.addBtn {
-  display: inline-flex;
+.actionsRow {
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 0.4rem;
+}
+
+.cartIconBtn,
+.buyBtn {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: var(--font-semibold);
+}
+
+.cartIconBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
   background: var(--btn-primary-bg);
   color: var(--text-light);
-  border: none;
-  padding: 0.5rem 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.buyBtn {
+  background: #fff;
+  color: #111;
+  padding: 0.4rem 0.7rem;
   border-radius: var(--radius-sm);
-  font-family: var(--font-ui);
   font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  cursor: pointer;
   white-space: nowrap;
 }
 
-.addBtn:disabled {
+.cartIconBtn:disabled,
+.buyBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Desktop detail modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.modalPanel {
+  width: min(1100px, 100%);
+  max-height: min(90vh, 760px);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  position: relative;
+}
+
+.modalClose {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.modalVideo {
+  position: relative;
+  background: #000;
+  min-height: 520px;
+}
+
+.modalVideoEl {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.muteBtn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.modalInfo {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-primary);
+}
+
+.modalInfoScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.modalHeadRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.modalShareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.7rem;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.modalName {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.stars {
+  color: #e6a800;
+  letter-spacing: 0.02em;
+}
+
+.ratingNum {
+  font-weight: var(--font-bold);
+}
+
+.reviews {
+  color: var(--text-muted);
+}
+
+.modalPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.modalPrice {
+  font-size: 1.4rem;
+  font-weight: var(--font-bold);
+}
+
+.modalMrp {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.modalSave {
+  color: var(--color-red);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+}
+
+.modalDesc {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.modalActions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.qty button {
+  width: 32px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.qty span {
+  min-width: 28px;
+  text-align: center;
+  font-weight: var(--font-semibold);
+}
+
+.modalAddBtn,
+.modalBuyBtn {
+  flex: 1;
+  height: 42px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.modalAddBtn {
+  background: var(--btn-primary-bg);
+  color: var(--text-light);
+}
+
+.modalBuyBtn {
+  background: #111;
+  color: #fff;
+}
+
+.modalAddBtn:disabled,
+.modalBuyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+  .navBtn {
+    display: none;
+  }
+
+  .modalPanel {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+  }
+
+  .modalVideo {
+    min-height: 280px;
+    max-height: 42vh;
+  }
 }
 
 @media (max-width: 900px) {
@@ -222,7 +522,6 @@
     width: 148px;
     max-width: 148px;
     max-height: 280px;
-    scroll-snap-align: start;
   }
 
   .body {
@@ -243,7 +542,7 @@
     overflow: hidden;
   }
 
-  .desc {
+  .cardRating {
     display: none;
   }
 
@@ -260,15 +559,14 @@
     font-size: 0.62rem;
   }
 
-  .addBtn {
-    padding: 0.28rem 0.45rem;
-    font-size: 0.65rem;
-    gap: 0.2rem;
+  .cartIconBtn {
+    width: 28px;
+    height: 28px;
   }
 
-  .addBtn svg {
-    width: 12px;
-    height: 12px;
+  .buyBtn {
+    padding: 0.28rem 0.45rem;
+    font-size: 0.65rem;
   }
 
   .discount {
@@ -276,5 +574,12 @@
     left: 0.4rem;
     font-size: 0.58rem;
     padding: 0.12rem 0.35rem;
+  }
+
+  .shareBtn {
+    width: 26px;
+    height: 26px;
+    top: 0.4rem;
+    right: 0.4rem;
   }
 }

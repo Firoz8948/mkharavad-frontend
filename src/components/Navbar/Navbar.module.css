@@ -100,7 +100,9 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-full);
   padding: 0.45rem 1rem;
-  flex: 0 1 280px;
+  flex: 0 1 220px;
+  max-width: 220px;
+  min-width: 0;
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
@@ -475,11 +477,34 @@
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1100px) and (min-width: 861px) {
+  .navDesktop {
+    gap: var(--space-3);
+  }
+
+  .navLink {
+    font-size: 0.85rem;
+  }
+
+  .search {
+    flex: 0 1 160px;
+    max-width: 160px;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .search input {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 861px) {
+  /* Prefer hiding desktop search before it overlaps nav; mobile drawer has search */
   .search {
     display: none;
   }
+}
 
+@media (max-width: 860px) {
   .inner {
     gap: var(--space-3);
   }

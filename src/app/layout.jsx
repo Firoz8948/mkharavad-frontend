@@ -2,6 +2,8 @@ import "@/styles/globals.css";
 
 import AppToaster from "@/components/AppToaster/AppToaster";
 import JsonLd from "@/components/JsonLd/JsonLd";
+import MetaPixel from "@/components/MetaPixel/MetaPixel";
+import FloatingCartBar from "@/components/FloatingCartBar/FloatingCartBar";
 import SiteChrome from "@/components/SiteChrome/SiteChrome";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -83,11 +85,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
       <body>
+        <MetaPixel />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <AuthProvider>
           <CartProvider>
             <AppToaster />
             <SiteChrome>{children}</SiteChrome>
+            <FloatingCartBar />
           </CartProvider>
         </AuthProvider>
       </body>

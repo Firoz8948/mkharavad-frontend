@@ -22,6 +22,10 @@ const EMPTY_FORM = {
   unit: "piece",
   position: "0",
   is_active: true,
+  weight: "",
+  length_cm: "",
+  breadth_cm: "",
+  height_cm: "",
 };
 
 export default function AdminVideoProductsPage() {
@@ -32,9 +36,12 @@ export default function AdminVideoProductsPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const fileRef = useRef();
+  const imagesRef = useRef();
 
   const fetchItems = async () => {
     setLoading(true);
@@ -55,6 +62,8 @@ export default function AdminVideoProductsPage() {
     setForm(EMPTY_FORM);
     setVideoFile(null);
     setVideoPreview(null);
+    setImageFiles([]);
+    setExistingImages([]);
     setModalOpen(true);
   };
 
@@ -70,9 +79,15 @@ export default function AdminVideoProductsPage() {
       unit: item.unit || "piece",
       position: String(item.position),
       is_active: item.is_active,
+      weight: item.weight != null ? String(item.weight) : "",
+      length_cm: item.length_cm != null ? String(item.length_cm) : "",
+      breadth_cm: item.breadth_cm != null ? String(item.breadth_cm) : "",
+      height_cm: item.height_cm != null ? String(item.height_cm) : "",
     });
     setVideoFile(null);
     setVideoPreview(item.video_url ? mediaUrl(item.video_url, API_BASE) : null);
+    setImageFiles([]);
+    setExistingImages(Array.isArray(item.images) ? item.images : []);
     setModalOpen(true);
   };
 
@@ -100,7 +115,13 @@ export default function AdminVideoProductsPage() {
       fd.append("unit", form.unit);
       fd.append("position", form.position);
       fd.append("is_active", form.is_active);
+      if (form.weight !== "") fd.append("weight", form.weight);
+      if (form.length_cm !== "") fd.append("length_cm", form.length_cm);
+      if (form.breadth_cm !== "") fd.append("breadth_cm", form.breadth_cm);
+      if (form.height_cm !== "") fd.append("height_cm", form.height_cm);
+      fd.append("images_json", JSON.stringify(existingImages));
       if (videoFile) fd.append("video", videoFile);
+      imageFiles.forEach((f) => fd.append("images", f));
 
       if (editing) {
         await updateVideoProduct(editing.id, fd);
@@ -316,6 +337,86 @@ export default function AdminVideoProductsPage() {
                         value={form.position}
                         onChange={(e) => setForm((p) => ({ ...p, position: e.target.value }))}
                       />
+                    </div>
+                  </div>
+
+                  <div className={styles.row2}>
+                    <div className={styles.field}>
+                      <label className={styles.label}>Weight (g)</label>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        min="0"
+                        value={form.weight}
+                        onChange={(e) => setForm((p) => ({ ...p, weight: e.target.value }))}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label}>L × B × H (cm)</label>
+                      <div className={styles.dims}>
+                        <input
+                          className={styles.input}
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          placeholder="L"
+                          value={form.length_cm}
+                          onChange={(e) => setForm((p) => ({ ...p, length_cm: e.target.value }))}
+                        />
+                        <input
+                          className={styles.input}
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          placeholder="B"
+                          value={form.breadth_cm}
+                          onChange={(e) => setForm((p) => ({ ...p, breadth_cm: e.target.value }))}
+                        />
+                        <input
+                          className={styles.input}
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          placeholder="H"
+                          value={form.height_cm}
+                          onChange={(e) => setForm((p) => ({ ...p, height_cm: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.field}>
+                    <label className={styles.label}>Product Images</label>
+                    <input
+                      ref={imagesRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) =>
+                        setImageFiles(Array.from(e.target.files || []))
+                      }
+                    />
+                    <div className={styles.imageRow}>
+                      {existingImages.map((url) => (
+                        <div key={url} className={styles.thumbWrap}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={mediaUrl(url, API_BASE)} alt="" />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExistingImages((prev) => prev.filter((u) => u !== url))
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      {imageFiles.map((f) => (
+                        <div key={f.name} className={styles.thumbWrap}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={URL.createObjectURL(f)} alt="" />
+                        </div>
+                      ))}
                     </div>
                   </div>
 

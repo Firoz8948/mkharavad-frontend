@@ -22,6 +22,40 @@
   margin: 0;
 }
 
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.shareBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #041d56;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.stars {
+  color: #f5a623;
+  letter-spacing: 0.04em;
+}
+
 .priceRow {
   display: flex;
   align-items: baseline;

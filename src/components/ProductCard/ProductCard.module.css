@@ -88,6 +88,49 @@
   overflow: hidden;
 }
 
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+}
+
+.stars {
+  color: #f5a623;
+  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.ratingNum {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.reviews {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.shareBtn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #041d56;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
 .weight {
   font-size: var(--text-sm);
   color: var(--text-muted);
@@ -99,6 +142,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.buyBtn {
+  border: none;
+  background: #041d56;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.buyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .price {

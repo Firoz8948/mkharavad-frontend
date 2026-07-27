@@ -300,6 +300,9 @@ export default function ProductForm({ mode = "add", productId = null }) {
     stock: "",
     unit: "piece",
     weight: "",
+    length_cm: "",
+    breadth_cm: "",
+    height_cm: "",
     is_featured: false,
     is_active: true,
     tags: "",
@@ -365,6 +368,9 @@ export default function ProductForm({ mode = "add", productId = null }) {
             stock: p.stock || "",
             unit: p.unit || "piece",
             weight: p.weight || "",
+            length_cm: p.length_cm || "",
+            breadth_cm: p.breadth_cm || "",
+            height_cm: p.height_cm || "",
             is_featured: p.is_featured || false,
             is_active: p.is_active ?? true,
             tags: (p.tags || []).join(", "),
@@ -432,6 +438,9 @@ export default function ProductForm({ mode = "add", productId = null }) {
         stock: parseInt(form.stock) || 0,
         unit: form.unit,
         weight: form.weight ? parseFloat(form.weight) : null,
+        length_cm: form.length_cm ? parseFloat(form.length_cm) : null,
+        breadth_cm: form.breadth_cm ? parseFloat(form.breadth_cm) : null,
+        height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
         is_featured: form.is_featured,
         is_active: form.is_active,
         tags: form.tags
@@ -716,6 +725,45 @@ export default function ProductForm({ mode = "add", productId = null }) {
                   value={form.weight}
                   onChange={(e) => setField("weight", e.target.value)}
                 />
+              </div>
+
+              <div className={styles.row3}>
+                <div className={styles.field}>
+                  <label className={styles.label}>Length (cm)</label>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={form.length_cm}
+                    onChange={(e) => setField("length_cm", e.target.value)}
+                    placeholder="10"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>Breadth (cm)</label>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={form.breadth_cm}
+                    onChange={(e) => setField("breadth_cm", e.target.value)}
+                    placeholder="10"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>Height (cm)</label>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={form.height_cm}
+                    onChange={(e) => setField("height_cm", e.target.value)}
+                    placeholder="10"
+                  />
+                </div>
               </div>
             </div>
 

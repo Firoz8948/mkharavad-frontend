@@ -55,7 +55,14 @@ export default function CategorySection() {
     );
   }
 
-  if (categories.length === 0) return null;
+  const reelsCategory = {
+    id: "reels-hardcoded",
+    name: "Reels",
+    slug: "reels",
+    image_url: null,
+    is_reels: true,
+  };
+  const displayCategories = [...categories, reelsCategory];
 
   return (
     <section className={`section ${styles.wrap}`}>
@@ -85,35 +92,46 @@ export default function CategorySection() {
           </div>
         </div>
 
-        {/* Desktop / tablet: large image cards */}
         <div className={styles.desktopRow} ref={scrollRef}>
-          {categories.map((cat) => (
+          {displayCategories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/shop?category=${cat.slug}`}
-              className={styles.catCard}
+              href={cat.is_reels ? "/reels" : `/shop?category=${cat.slug}`}
+              className={`${styles.catCard} ${cat.is_reels ? styles.reelsCard : ""}`}
             >
               <div className={styles.catImgWrap}>
                 {cat.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={mediaUrl(cat.image_url)}
                     alt={cat.name}
                     className={styles.catImg}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
-                ) : (
+                ) : null}
+                {!cat.image_url || cat.is_reels ? (
                   <div className={styles.catPlaceholder}>
-                    {(cat.name || "?").charAt(0)}
+                    {cat.is_reels ? "▶" : (cat.name || "?").charAt(0)}
                   </div>
-                )}
+                ) : null}
               </div>
               <span className={styles.catLabel}>{cat.name}</span>
             </Link>
           ))}
         </div>
 
-        {/* Mobile: accordion — category only, expand for subcategories */}
         <div className={styles.mobileList}>
-          {categories.map((cat) => {
+          {displayCategories.map((cat) => {
+            if (cat.is_reels) {
+              return (
+                <Link key={cat.id} href="/reels" className={styles.accReelsLink}>
+                  <span>▶ Reels</span>
+                  <span aria-hidden>›</span>
+                </Link>
+              );
+            }
             const open = openIds.has(cat.id);
             const subs = cat.subcategories || [];
             return (

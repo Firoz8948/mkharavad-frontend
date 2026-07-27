@@ -21,10 +21,20 @@ const nextConfig = {
   },
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiBase =
+      process.env.NEXT_PUBLIC_API_BASE || `${apiUrl}/api/v1`;
     return [
       {
         source: "/uploads/:path*",
         destination: `${apiUrl}/uploads/:path*`,
+      },
+      {
+        source: "/facebook-feed.xml",
+        destination: `${apiBase}/feeds/facebook-feed.xml`,
+      },
+      {
+        source: "/google-merchant.xml",
+        destination: `${apiBase}/feeds/google-merchant.xml`,
       },
     ];
   },

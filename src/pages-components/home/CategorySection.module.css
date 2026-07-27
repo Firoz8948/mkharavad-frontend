@@ -245,3 +245,20 @@
     flex-direction: column;
   }
 }
+
+.accReelsLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.95rem 0.25rem;
+  border-bottom: 1px solid var(--border-light);
+  color: #041d56;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reelsCard .catPlaceholder {
+  background: #041d56;
+  color: #fff;
+  font-size: 1.6rem;
+}

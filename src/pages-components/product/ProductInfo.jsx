@@ -1,16 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FiMinus, FiPlus } from "react-icons/fi";
+import { FiMinus, FiPlus, FiShare2 } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 import Button from "@/components/Button/Button";
+import BuyNowModal, { useBuyNow } from "@/components/BuyNowModal/BuyNowModal";
 import { useCart } from "@/hooks/useCart";
 import { calcDiscount, formatPrice } from "@/utils/formatPrice";
+import { trackViewContent } from "@/utils/metaPixel";
 import {
   formatWeightGrams,
   getVariantOptions,
   parseWeightGrams,
 } from "@/utils/productVariants";
+import { productShareUrl, shareLink } from "@/utils/share";
+import { getProductSocialProof } from "@/utils/socialProof";
 import styles from "./ProductInfo.module.css";
 
 function resolveOptionWeight(option) {
@@ -24,8 +29,10 @@ function isHtmlDescription(text) {
 
 export default function ProductInfo({ product }) {
   const { addToCart } = useCart();
+  const buyNow = useBuyNow();
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
+  const proof = getProductSocialProof(product.id);
 
   const variantData = useMemo(() => getVariantOptions(product), [product]);
   const [selectedOptionId, setSelectedOptionId] = useState(null);
@@ -44,6 +51,10 @@ export default function ProductInfo({ product }) {
       setSelectedOptionId(selectedOption.id);
     }
   }, [selectedOption?.id]);
+
+  useEffect(() => {
+    if (product?.id) trackViewContent(product);
+  }, [product?.id]);
 
   const displayPrice = selectedOption?.price ?? product.price;
   const displayMrp = selectedOption?.mrp ?? product.mrp;
@@ -86,12 +97,56 @@ export default function ProductInfo({ product }) {
     setAdding(false);
   };
 
+  const cartOptions = {
+    price: displayPrice,
+    mrp: displayMrp,
+    stock: displayStock,
+    weightGrams,
+    variantInfo: selectedOption
+      ? {
+          variant_name: variantData.variantName,
+          option_name: selectedOption.name,
+          option_id: selectedOption.id,
+          weight_grams: weightGrams,
+        }
+      : null,
+  };
+
+  const handleBuyNow = () => {
+    buyNow.openBuyNow(product, qty, cartOptions);
+  };
+
+  const handleShare = async () => {
+    const res = await shareLink({
+      title: product.name,
+      text: `Check out ${product.name} on M Kharavad`,
+      url: productShareUrl(product.slug),
+    });
+    if (res.method === "clipboard") toast.success("Link copied");
+    else if (res.method === "failed") toast.error("Could not share");
+  };
+
   return (
     <div className={styles.info}>
       {categoryOnly ? (
         <span className={styles.category}>{categoryOnly}</span>
       ) : null}
-      <h1 className={styles.name}>{product.name}</h1>
+      <div className={styles.titleRow}>
+        <h1 className={styles.name}>{product.name}</h1>
+        <button
+          type="button"
+          className={styles.shareBtn}
+          onClick={handleShare}
+          aria-label="Share"
+        >
+          <FiShare2 size={18} />
+        </button>
+      </div>
+      <div className={styles.rating}>
+        <span className={styles.stars}>★★★★★</span>
+        <strong>{proof.rating}</strong>
+        <span>{proof.label}</span>
+      </div>
 
       <div className={styles.priceRow}>
         <span className={styles.price}>{formatPrice(displayPrice)}</span>
@@ -140,7 +195,7 @@ export default function ProductInfo({ product }) {
         {outOfStock ? (
           <span className={styles.out}>Out of Stock</span>
         ) : (
-          <span className={styles.in}>In Stock · {displayStock} left</span>
+          <span className={styles.in}>In Stock</span>
         )}
       </div>
 
@@ -166,8 +221,19 @@ export default function ProductInfo({ product }) {
           <Button size="lg" loading={adding} onClick={handleAdd}>
             Add to Cart
           </Button>
+          <Button size="lg" variant="outline" onClick={handleBuyNow}>
+            Buy Now
+          </Button>
         </div>
       )}
+
+      <BuyNowModal
+        open={buyNow.open}
+        onClose={buyNow.closeBuyNow}
+        product={buyNow.product}
+        quantity={buyNow.quantity}
+        options={buyNow.options}
+      />
 
       <div className={styles.descBlock}>
         <h2 className={styles.descTitle}>About this product</h2>

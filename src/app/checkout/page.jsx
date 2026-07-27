@@ -13,6 +13,12 @@ import { updateProfile } from "@/services/authService";
 import { orderService } from "@/services/orderService";
 import { paymentService } from "@/services/paymentService";
 import { BRAND, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_CHARGE } from "@/utils/constants";
+import {
+  metaCookies,
+  newEventId,
+  trackInitiateCheckout,
+  trackPurchase,
+} from "@/utils/metaPixel";
 import { isValidPincode, required } from "@/utils/validators";
 import styles from "./checkout.module.css";
 
@@ -76,7 +82,7 @@ function loadRazorpay() {
   });
 }
 
-function buildCheckoutPayload(cart, form, promoCode) {
+function buildCheckoutPayload(cart, form, promoCode, meta = {}) {
   return {
     customer: {
       name: form.full_name,
@@ -103,6 +109,7 @@ function buildCheckoutPayload(cart, form, promoCode) {
       variant_info: item.variant_info,
     })),
     promo_code: promoCode || null,
+    ...meta,
   };
 }
 
@@ -142,6 +149,7 @@ export default function CheckoutPage() {
   const [promo, setPromo] = useState(null);
   const [shippingQuote, setShippingQuote] = useState(null);
   const prefilledRef = useRef(false);
+  const checkoutTrackedRef = useRef(false);
 
   const handleShippingQuoteChange = useCallback((quote) => {
     setShippingQuote(quote);
@@ -152,6 +160,17 @@ export default function CheckoutPage() {
       setLoginOpen(true);
     }
   }, [authLoading, isAuthenticated]);
+
+  useEffect(() => {
+    if (
+      isAuthenticated &&
+      cart.items.length > 0 &&
+      !checkoutTrackedRef.current
+    ) {
+      checkoutTrackedRef.current = true;
+      trackInitiateCheckout(cart);
+    }
+  }, [isAuthenticated, cart]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -208,7 +227,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    const payload = buildCheckoutPayload(cart, form, promo?.code);
+    const purchaseEventId = newEventId("Purchase");
+    const meta = { meta_event_id: purchaseEventId, ...metaCookies() };
+    const payload = buildCheckoutPayload(cart, form, promo?.code, meta);
     const data = await paymentService.createOrder(payload);
 
     const options = {
@@ -230,6 +251,13 @@ export default function CheckoutPage() {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
+            ...meta,
+          });
+          trackPurchase({
+            orderId: result.order_id,
+            total: result.order?.total ?? cart.total_amount,
+            items: cart.items,
+            eventId: purchaseEventId,
           });
           await saveAddressToProfile(form);
           await refresh();
@@ -264,13 +292,21 @@ export default function CheckoutPage() {
     if (!validateForm()) return;
     setPlacing(true);
     try {
+      const purchaseEventId = newEventId("Purchase");
+      const meta = { meta_event_id: purchaseEventId, ...metaCookies() };
       const payload = {
-        ...buildCheckoutPayload(cart, form, promo?.code),
+        ...buildCheckoutPayload(cart, form, promo?.code, meta),
         payment_method: method,
       };
 
       if (method === "cod") {
         const order = await orderService.createOrder(payload);
+        trackPurchase({
+          orderId: order.order_id,
+          total: order.total ?? cart.total_amount,
+          items: cart.items,
+          eventId: purchaseEventId,
+        });
         await saveAddressToProfile(form);
         await refresh();
         clearCart();

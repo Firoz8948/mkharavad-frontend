@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import toast from "react-hot-toast";
 
 import { CART_STORAGE_KEY } from "@/utils/constants";
+import { trackAddToCart } from "@/utils/metaPixel";
 import { buildCartKey, formatWeightGrams } from "@/utils/productVariants";
 
 const CartContext = createContext(null);
@@ -95,11 +96,26 @@ export function CartProvider({ children }) {
         image: product.images?.[0] || null,
         weight: weightLabel,
         weight_grams: weightGrams,
-        variant_info: variantInfo,
+        length_cm: product.length_cm ?? options.length_cm ?? null,
+        breadth_cm: product.breadth_cm ?? options.breadth_cm ?? null,
+        height_cm: product.height_cm ?? options.height_cm ?? null,
+        variant_info: variantInfo
+          ? {
+              ...variantInfo,
+              length_cm: product.length_cm ?? options.length_cm ?? null,
+              breadth_cm: product.breadth_cm ?? options.breadth_cm ?? null,
+              height_cm: product.height_cm ?? options.height_cm ?? null,
+            }
+          : {
+              length_cm: product.length_cm ?? options.length_cm ?? null,
+              breadth_cm: product.breadth_cm ?? options.breadth_cm ?? null,
+              height_cm: product.height_cm ?? options.height_cm ?? null,
+            },
       });
     }
 
     persist(items);
+    trackAddToCart(product, quantity, price);
     toast.success("Added to cart");
     return true;
   };

@@ -1,0 +1,369 @@
+.page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 250;
+  background: #000;
+  overflow: hidden;
+}
+
+@media (max-width: 860px) {
+  .page {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background: #000;
+  overflow: hidden;
+}
+
+.slideVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slideNoVideo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: #0f172a;
+}
+
+.slideDiscount {
+  position: absolute;
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  left: 14px;
+  z-index: 5;
+  background: var(--color-red, #f26a21);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+/* ---------- Persistent top controls ---------- */
+.backBtn,
+.shareBtn {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.backBtn {
+  left: 14px;
+}
+
+.shareBtn {
+  right: 14px;
+}
+
+.shareBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Loading / empty ---------- */
+.loading,
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #fff;
+}
+
+.empty a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  animation: reelSpin 0.8s linear infinite;
+}
+
+@keyframes reelSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Bottom panel ---------- */
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  max-height: 82%;
+}
+
+.panelHandleArea {
+  padding: 10px 16px 14px;
+  cursor: pointer;
+  touch-action: pan-y;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dragHandle {
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border-medium, #cbd5e1);
+  margin: 0 auto 10px;
+}
+
+.panelTeaser {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panelTeaserText {
+  min-width: 0;
+}
+
+.category {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--secondary, #f26a21);
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.panelName {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+  margin: 0 0 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.stars {
+  color: #f5a623;
+  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.ratingNum {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+}
+
+.reviews {
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+}
+
+.panelTeaserRight {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.panelTeaserPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.panelPrice {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--primary, #041d56);
+  white-space: nowrap;
+}
+
+.panelMrp {
+  font-size: 0.76rem;
+  color: var(--text-muted, #64748b);
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.panelChevron {
+  color: var(--text-muted, #64748b);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.panelChevronOpen {
+  transform: rotate(180deg);
+}
+
+.panelBody {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.32s ease;
+  padding: 0 16px;
+}
+
+.panelExpanded .panelBody {
+  max-height: 62vh;
+  overflow-y: auto;
+  padding: 0 16px 20px;
+}
+
+.panelPriceRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.panelPriceLg {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary, #041d56);
+}
+
+.panelSave {
+  color: var(--success, #34a853);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.panelDesc {
+  color: var(--text, #0f172a);
+  line-height: 1.6;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  margin: 0.75rem 0 0;
+}
+
+.panelActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.panelAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: 1;
+  border: 1.5px solid var(--primary, #041d56);
+  background: #fff;
+  color: var(--primary, #041d56);
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.panelAddBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.panelBuyBtn {
+  flex: 1;
+  border: none;
+  background: var(--btn-primary-bg, #041d56);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.panelBuyBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (min-width: 620px) {
+  .slide {
+    display: flex;
+    justify-content: center;
+  }
+
+  .panel {
+    max-width: 420px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
+  }
+}

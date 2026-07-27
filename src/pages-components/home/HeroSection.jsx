@@ -7,39 +7,6 @@ import { getBanners } from "@/services/bannerService";
 import { API_URL } from "@/utils/constants";
 import styles from "./HeroSection.module.css";
 
-const FALLBACK_DESKTOP = [
-  {
-    id: "d1",
-    image: "/assets/images/banners/slide1.png",
-    title: "Premium Iron Cookware,",
-    title_highlight: "Built to Last",
-    subtitle:
-      "M Kharavad Company is known for producing high-quality iron cookware, including tawas, kadhai, and other utensils. Durable, traditional craftsmanship for your kitchen.",
-  },
-  {
-    id: "d2",
-    image: "/assets/images/banners/slide2.png",
-    title: "Authentic Cast Iron,",
-    title_highlight: "Traditional Craftsmanship",
-    subtitle:
-      "Experience superior heat retention and unmatched durability. Our cast iron products are crafted for a lifetime of healthy and traditional cooking.",
-  },
-  {
-    id: "d3",
-    image: "/assets/images/banners/slide3.png",
-    title: "Heavy-Duty Tawas &",
-    title_highlight: "Iron Sheets",
-    subtitle:
-      "Discover our premium range of iron sheets and heavy-duty tawas, designed for consistent performance, high heat tolerance, and authentic flavor.",
-  },
-];
-
-const FALLBACK_MOBILE = [
-  { id: "m1", image: "/assets/images/banners/banner1.png" },
-  { id: "m2", image: "/assets/images/banners/banner2.png" },
-  { id: "m3", image: "/assets/images/banners/banner3.png" },
-];
-
 const SLIDE_DURATION = 5000;
 
 function resolveImage(url) {
@@ -48,9 +15,8 @@ function resolveImage(url) {
   return `${API_URL}${url}`;
 }
 
-function mapSlides(items, fallback) {
+function mapSlides(items) {
   const active = (items || []).filter((s) => s.image_url || s.image);
-  if (!active.length) return fallback;
   return active.map((s) => ({
     id: s.id,
     image: resolveImage(s.image_url || s.image),
@@ -62,9 +28,10 @@ function mapSlides(items, fallback) {
 }
 
 export default function HeroSection() {
-  const [desktopSlides, setDesktopSlides] = useState(FALLBACK_DESKTOP);
-  const [mobileSlides, setMobileSlides] = useState(FALLBACK_MOBILE);
+  const [desktopSlides, setDesktopSlides] = useState([]);
+  const [mobileSlides, setMobileSlides] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [loaded, setLoaded] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -76,10 +43,12 @@ export default function HeroSection() {
           getBanners("mobile"),
         ]);
         if (cancelled) return;
-        setDesktopSlides(mapSlides(desk.data, FALLBACK_DESKTOP));
-        setMobileSlides(mapSlides(mob.data, FALLBACK_MOBILE));
+        setDesktopSlides(mapSlides(desk.data));
+        setMobileSlides(mapSlides(mob.data));
       } catch {
-        // keep fallbacks
+        // leave empty — admin must add banners
+      } finally {
+        if (!cancelled) setLoaded(true);
       }
     })();
     return () => {
@@ -88,10 +57,6 @@ export default function HeroSection() {
   }, []);
 
   const slideCount = Math.max(desktopSlides.length, mobileSlides.length, 1);
-
-  const goTo = useCallback((index) => {
-    setCurrent(index);
-  }, []);
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % slideCount);
@@ -107,9 +72,10 @@ export default function HeroSection() {
   }, [slideCount]);
 
   useEffect(() => {
+    if (slideCount <= 1) return undefined;
     resetTimer();
     return () => clearInterval(timerRef.current);
-  }, [resetTimer]);
+  }, [resetTimer, slideCount]);
 
   useEffect(() => {
     [...desktopSlides, ...mobileSlides].forEach((slide) => {
@@ -120,67 +86,73 @@ export default function HeroSection() {
   }, [desktopSlides, mobileSlides]);
 
   const handleDotClick = (index) => {
-    goTo(index);
+    setCurrent(index);
     resetTimer();
   };
 
-  const slide = desktopSlides[current % desktopSlides.length] || desktopSlides[0];
+  const deskSlide =
+    desktopSlides[current % Math.max(desktopSlides.length, 1)] || desktopSlides[0];
   const dotsCount = desktopSlides.length || mobileSlides.length;
+
+  if (loaded && !desktopSlides.length && !mobileSlides.length) {
+    return null;
+  }
+
+  if (!loaded && !desktopSlides.length && !mobileSlides.length) {
+    return <section className={styles.heroWrapper} aria-hidden />;
+  }
+
+  const hasCopy = Boolean(
+    deskSlide?.title || deskSlide?.title_highlight || deskSlide?.subtitle
+  );
 
   return (
     <section className={styles.heroWrapper}>
+      {/* Desktop: full-bleed banners from admin */}
       <div className={`${styles.hero} ${styles.desktopHero}`}>
-        <div className={styles.inner}>
-          <div className={styles.content}>
-            <h1 className={styles.title}>
-              {slide?.title} <span>{slide?.title_highlight}</span>
-            </h1>
-
-            <p className={styles.subtitle}>{slide?.subtitle}</p>
-
-            <div className={styles.actions}>
-              <Link href={slide?.link_url || "/shop"} className={styles.primary}>
+        <div className={styles.bannerStage}>
+          {desktopSlides.map((item, index) => {
+            const visible = index === current % desktopSlides.length;
+            const href = item.link_url || "/shop";
+            return (
+              <Link
+                key={item.id}
+                href={href}
+                className={`${styles.bannerSlide} ${visible ? styles.slideVisible : ""}`}
+                tabIndex={visible ? 0 : -1}
+                aria-hidden={!visible}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.image}
+                  alt={item.title || `Banner ${index + 1}`}
+                  className={styles.bannerImage}
+                />
+              </Link>
+            );
+          })}
+          {hasCopy && (
+            <div className={styles.bannerCopy}>
+              <h1 className={styles.title}>
+                {deskSlide?.title}{" "}
+                {deskSlide?.title_highlight ? (
+                  <span>{deskSlide.title_highlight}</span>
+                ) : null}
+              </h1>
+              {deskSlide?.subtitle ? (
+                <p className={styles.subtitle}>{deskSlide.subtitle}</p>
+              ) : null}
+              <Link href={deskSlide?.link_url || "/shop"} className={styles.primary}>
                 Shop Now
               </Link>
-              <Link href="/about" className={styles.secondary}>
-                Our Story
-              </Link>
             </div>
-
-            <div className={styles.stats}>
-              <div>
-                <strong>5000+</strong>
-                <span>Happy Customers</span>
-              </div>
-              <div>
-                <strong>50+</strong>
-                <span>Products</span>
-              </div>
-              <div>
-                <strong>4.8★</strong>
-                <span>Avg Rating</span>
-              </div>
-            </div>
-          </div>
-          <div className={styles.imageWrapper}>
-            {desktopSlides.map((item, index) => (
-              <img
-                key={item.id}
-                src={item.image}
-                alt={item.title || `Slide ${index + 1}`}
-                className={`${styles.slideImage} ${
-                  index === current % desktopSlides.length
-                    ? styles.slideVisible
-                    : ""
-                }`}
-              />
-            ))}
-          </div>
+          )}
         </div>
       </div>
 
       <div className={styles.mobileHero}>
         {mobileSlides.map((item, index) => (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={item.id}
             src={item.image}
@@ -192,16 +164,19 @@ export default function HeroSection() {
         ))}
       </div>
 
-      <div className={styles.dots}>
-        {Array.from({ length: dotsCount }).map((_, i) => (
-          <button
-            key={i}
-            className={`${styles.dot} ${i === current % dotsCount ? styles.dotActive : ""}`}
-            onClick={() => handleDotClick(i)}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
+      {dotsCount > 1 && (
+        <div className={styles.dots}>
+          {Array.from({ length: dotsCount }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${styles.dot} ${i === current % dotsCount ? styles.dotActive : ""}`}
+              onClick={() => handleDotClick(i)}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
