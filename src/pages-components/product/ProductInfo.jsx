@@ -143,7 +143,7 @@ export default function ProductInfo({ product }) {
         </button>
       </div>
       <div className={styles.rating}>
-        <span className={styles.stars}>★★★★★</span>
+        <span className={styles.stars}>{"\u2605\u2605\u2605\u2605\u2605"}</span>
         <strong>{proof.ratingLabel}</strong>
         <span>{proof.label}</span>
       </div>

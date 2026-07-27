@@ -280,21 +280,32 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
         {discount > 0 && (
           <span className={styles.discount}>{discount}% OFF</span>
         )}
-        <button
-          type="button"
-          className={styles.shareBtn}
-          onClick={stopAnd(onShare)}
-          aria-label="Share this product"
-        >
-          <FiShare2 size={13} />
-        </button>
+        <div className={styles.topActions} onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className={styles.shareBtn}
+            onClick={stopAnd(onShare)}
+            aria-label="Share this product"
+          >
+            <FiShare2 size={13} />
+          </button>
+          <button
+            type="button"
+            className={styles.cartIconBtn}
+            onClick={stopAnd(onAdd)}
+            disabled={soldOut}
+            aria-label="Add to cart"
+          >
+            <FiShoppingCart size={14} />
+          </button>
+        </div>
       </div>
 
       <div className={styles.body}>
         <span className={styles.category}>{item.category}</span>
         <h3 className={styles.name}>{item.name}</h3>
         <div className={styles.cardRating} aria-label={`${proof.rating} stars`}>
-          <span>â˜…â˜…â˜…â˜…â˜…</span>
+          <span>{"\u2605\u2605\u2605\u2605\u2605"}</span>
           <span>{proof.ratingLabel}</span>
           <span className={styles.reviews}>{proof.label}</span>
         </div>
@@ -306,25 +317,14 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
               <span className={styles.mrp}>{formatPrice(item.mrp)}</span>
             )}
           </div>
-          <div className={styles.actionsRow}>
-            <button
-              type="button"
-              className={styles.cartIconBtn}
-              onClick={stopAnd(onAdd)}
-              disabled={soldOut}
-              aria-label="Add to cart"
-            >
-              <FiShoppingCart size={15} />
-            </button>
-            <button
-              type="button"
-              className={styles.buyBtn}
-              onClick={stopAnd(onBuyNow)}
-              disabled={soldOut}
-            >
-              {soldOut ? "Sold out" : "Buy Now"}
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.buyBtn}
+            onClick={stopAnd(onBuyNow)}
+            disabled={soldOut}
+          >
+            {soldOut ? "Sold out" : "Buy Now"}
+          </button>
         </div>
       </div>
     </div>

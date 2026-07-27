@@ -295,7 +295,7 @@ function ReelSlide({
               {item.category && <span className={styles.category}>{item.category}</span>}
               <h3 className={styles.panelName}>{item.name}</h3>
               <div className={styles.rating} aria-label={`${proof.rating} stars`}>
-                <span className={styles.stars}>★★★★★</span>
+                <span className={styles.stars}>{"\u2605\u2605\u2605\u2605\u2605"}</span>
                 <span className={styles.ratingNum}>{proof.ratingLabel}</span>
                 <span className={styles.reviews}>{proof.label}</span>
               </div>

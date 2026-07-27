@@ -115,12 +115,23 @@
 }
 
 .shareBtn {
+  /* used inside .topActions */
+}
+
+.topActions {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
   z-index: 2;
-  width: 32px;
-  height: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.topActions .shareBtn,
+.topActions .addBtn {
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
@@ -129,6 +140,17 @@
   place-items: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  padding: 0;
+}
+
+.topActions .addBtn {
+  background: var(--btn-primary-bg);
+  color: var(--text-light);
+}
+
+.topActions .addBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .weight {
@@ -142,25 +164,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  gap: 0.65rem;
 }
 
 .buyBtn {
   border: none;
   background: #041d56;
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 0.45rem 0.65rem;
+  padding: 0.55rem 1.15rem;
+  min-width: 96px;
+  height: 40px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .buyBtn:disabled {
@@ -171,6 +190,7 @@
 .price {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .current {
@@ -186,18 +206,17 @@
   text-decoration: line-through;
 }
 
-.addBtn {
-  background: var(--btn-primary-bg);
-  color: var(--text-light);
-  border: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-}
+@media (max-width: 768px) {
+  .topActions .shareBtn,
+  .topActions .addBtn {
+    width: 30px;
+    height: 30px;
+  }
 
-.addBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  .buyBtn {
+    font-size: 0.78rem;
+    padding: 0.5rem 0.95rem;
+    min-width: 88px;
+    height: 36px;
+  }
 }

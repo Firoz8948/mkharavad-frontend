@@ -139,12 +139,23 @@
 }
 
 .shareBtn {
+  /* used inside .topActions */
+}
+
+.topActions {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
   z-index: 4;
-  width: 32px;
-  height: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.topActions .shareBtn,
+.topActions .cartIconBtn {
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -152,6 +163,16 @@
   display: grid;
   place-items: center;
   cursor: pointer;
+  padding: 0;
+}
+
+.topActions .cartIconBtn {
+  background: var(--btn-primary-bg);
+}
+
+.topActions .cartIconBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .body {
@@ -247,22 +268,19 @@
 }
 
 .cartIconBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  background: var(--btn-primary-bg);
-  color: var(--text-light);
-  display: grid;
-  place-items: center;
+  /* cart lives in .topActions now */
 }
 
 .buyBtn {
   background: #fff;
   color: #111;
-  padding: 0.4rem 0.7rem;
+  padding: 0.5rem 1.05rem;
+  min-width: 92px;
+  height: 38px;
   border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
+  font-size: 0.88rem;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cartIconBtn:disabled,
@@ -572,8 +590,10 @@
   }
 
   .buyBtn {
-    padding: 0.28rem 0.45rem;
-    font-size: 0.65rem;
+    padding: 0.4rem 0.75rem;
+    min-width: 78px;
+    height: 32px;
+    font-size: 0.72rem;
   }
 
   .discount {
@@ -583,10 +603,15 @@
     padding: 0.12rem 0.35rem;
   }
 
-  .shareBtn {
-    width: 26px;
-    height: 26px;
+  .topActions {
     top: 0.4rem;
     right: 0.4rem;
+    gap: 0.3rem;
+  }
+
+  .topActions .shareBtn,
+  .topActions .cartIconBtn {
+    width: 28px;
+    height: 28px;
   }
 }

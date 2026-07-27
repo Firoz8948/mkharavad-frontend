@@ -509,6 +509,10 @@
     gap: var(--space-3);
   }
 
+  .search {
+    display: none;
+  }
+
   .logo {
     margin-right: auto;
   }
@@ -737,11 +741,7 @@
   }
 
   .searchMobile {
-    display: flex;
-    width: 78%;
-    max-width: 180px;
-    margin-top: 1rem;
-    gap: 0.4rem;
+    display: none;
   }
 
   .searchMobile input {

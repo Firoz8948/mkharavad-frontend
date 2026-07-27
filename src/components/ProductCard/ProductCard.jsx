@@ -68,14 +68,25 @@ export default function ProductCard({ product }) {
           )}
           {discount > 0 && <span className={styles.discount}>{discount}% OFF</span>}
           {outOfStock && <span className={styles.soldOut}>Out of stock</span>}
-          <button
-            type="button"
-            className={styles.shareBtn}
-            onClick={handleShare}
-            aria-label="Share product"
-          >
-            <FiShare2 size={14} />
-          </button>
+          <div className={styles.topActions}>
+            <button
+              type="button"
+              className={styles.shareBtn}
+              onClick={handleShare}
+              aria-label="Share product"
+            >
+              <FiShare2 size={14} />
+            </button>
+            <button
+              type="button"
+              className={styles.addBtn}
+              onClick={handleAdd}
+              disabled={outOfStock || listing.hasVariants}
+              aria-label="Add to cart"
+            >
+              <FiShoppingCart size={15} />
+            </button>
+          </div>
         </div>
 
         <div className={styles.body}>
@@ -84,7 +95,7 @@ export default function ProductCard({ product }) {
           ) : null}
           <h3 className={styles.name}>{product.name}</h3>
           <div className={styles.rating} aria-label={`${proof.rating} stars`}>
-            <span className={styles.stars}>★★★★★</span>
+            <span className={styles.stars}>{"\u2605\u2605\u2605\u2605\u2605"}</span>
             <span className={styles.ratingNum}>{proof.ratingLabel}</span>
             <span className={styles.reviews}>{proof.label}</span>
           </div>
@@ -99,25 +110,14 @@ export default function ProductCard({ product }) {
                 <span className={styles.mrp}>{formatPrice(listing.mrp)}</span>
               ) : null}
             </div>
-            <div className={styles.actions}>
-              <button
-                type="button"
-                className={styles.addBtn}
-                onClick={handleAdd}
-                disabled={outOfStock || listing.hasVariants}
-                aria-label="Add to cart"
-              >
-                <FiShoppingCart size={15} />
-              </button>
-              <button
-                type="button"
-                className={styles.buyBtn}
-                onClick={handleBuyNow}
-                disabled={outOfStock}
-              >
-                Buy
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.buyBtn}
+              onClick={handleBuyNow}
+              disabled={outOfStock}
+            >
+              Buy Now
+            </button>
           </div>
         </div>
       </Link>
