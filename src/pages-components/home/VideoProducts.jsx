@@ -22,7 +22,11 @@ import { calcDiscount, formatPrice } from "@/utils/formatPrice";
 import { mediaUrl } from "@/utils/mediaUrl";
 import { shareLink, videoShareUrl } from "@/utils/share";
 import { getProductSocialProof } from "@/utils/socialProof";
-import { fetchVideoProducts, toCartProduct } from "@/utils/videoProduct";
+import {
+  fetchVideoProducts,
+  toCartProduct,
+  videoCartOptions,
+} from "@/utils/videoProduct";
 import styles from "./VideoProducts.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -96,21 +100,12 @@ export default function VideoProducts() {
     }
   };
 
-  const cartOpts = (item) => ({
-    price: item.price,
-    stock: item.stock,
-    weightGrams: item.weight,
-    length_cm: item.length_cm,
-    breadth_cm: item.breadth_cm,
-    height_cm: item.height_cm,
-  });
-
   const handleAdd = (item, qty = 1) => {
-    addToCart(toCartProduct(item), qty, cartOpts(item));
+    addToCart(toCartProduct(item), qty, videoCartOptions(item));
   };
 
   const handleBuyNow = (item, qty = 1) => {
-    buyNow.openBuyNow(toCartProduct(item), qty, cartOpts(item));
+    buyNow.openBuyNow(toCartProduct(item), qty, videoCartOptions(item));
     setActiveItem(null);
   };
 

@@ -34,3 +34,15 @@ export function toCartProduct(item) {
     height_cm: item.height_cm,
   };
 }
+
+/** Options passed alongside addToCart / Buy Now for shipping dims. */
+export function videoCartOptions(item) {
+  return {
+    price: item.price,
+    stock: item.stock,
+    weightGrams: item.weight,
+    length_cm: item.length_cm,
+    breadth_cm: item.breadth_cm,
+    height_cm: item.height_cm,
+  };
+}

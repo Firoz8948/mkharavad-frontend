@@ -13,7 +13,11 @@ import { calcDiscount, formatPrice } from "@/utils/formatPrice";
 import { mediaUrl } from "@/utils/mediaUrl";
 import { shareLink, videoShareUrl } from "@/utils/share";
 import { getProductSocialProof } from "@/utils/socialProof";
-import { fetchVideoProducts, toCartProduct } from "@/utils/videoProduct";
+import {
+  fetchVideoProducts,
+  toCartProduct,
+  videoCartOptions,
+} from "@/utils/videoProduct";
 import styles from "./reels.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -117,15 +121,11 @@ function ReelsContent() {
   };
 
   const handleAdd = (item, qty = 1) => {
-    addToCart(toCartProduct(item), qty, { weightGrams: item.weight });
+    addToCart(toCartProduct(item), qty, videoCartOptions(item));
   };
 
   const handleBuyNow = (item, qty = 1) => {
-    buyNow.openBuyNow(toCartProduct(item), qty, {
-      price: item.price,
-      stock: item.stock,
-      weightGrams: item.weight,
-    });
+    buyNow.openBuyNow(toCartProduct(item), qty, videoCartOptions(item));
   };
 
   const activeItem = items[activeIndex];
