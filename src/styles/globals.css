@@ -792,7 +792,8 @@ main.site-main {
 
 @media (min-width: 861px) {
   main.site-main {
-    padding-top: 60px;
+    /* Match fixed navbar height so hero never slides under it */
+    padding-top: var(--header-height);
   }
 
   .mobile-bottom-nav-spacer {

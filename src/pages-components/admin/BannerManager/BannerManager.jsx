@@ -13,10 +13,93 @@ import {
 import { API_URL } from "@/utils/constants";
 import styles from "./banners.module.css";
 
+/** Must match HeroSection.module.css aspect ratios. */
+const ASPECT = {
+  desktop: 21 / 8,
+  mobile: 4 / 5,
+};
+
 function imageSrc(url) {
   if (!url) return null;
   if (url.startsWith("http") || url.startsWith("/assets")) return url;
   return `${API_URL}${url}`;
+}
+
+/**
+ * Shows live (cover) crop + full image with cut zones dimmed.
+ */
+function CropPreview({ src, aspect, deviceLabel }) {
+  const [nat, setNat] = useState(null);
+
+  if (!src) {
+    return (
+      <div className={styles.previewEmpty}>
+        <span>No image — upload to see crop preview</span>
+      </div>
+    );
+  }
+
+  let cutNote = "Loading…";
+  let windowStyle = { left: "0%", top: "0%", width: "100%", height: "100%" };
+
+  if (nat?.w && nat?.h) {
+    const imgAspect = nat.w / nat.h;
+    if (imgAspect > aspect) {
+      // Image wider than frame → left/right cut
+      const visibleW = (aspect / imgAspect) * 100;
+      const left = (100 - visibleW) / 2;
+      windowStyle = { left: `${left}%`, top: "0%", width: `${visibleW}%`, height: "100%" };
+      const cutPct = Math.round(100 - visibleW);
+      cutNote =
+        cutPct > 1
+          ? `~${cutPct}% of width is cut (left & right edges)`
+          : "Almost no crop — image matches the frame";
+    } else if (imgAspect < aspect) {
+      // Image taller than frame → top/bottom cut
+      const visibleH = (imgAspect / aspect) * 100;
+      const top = (100 - visibleH) / 2;
+      windowStyle = { left: "0%", top: `${top}%`, width: "100%", height: `${visibleH}%` };
+      const cutPct = Math.round(100 - visibleH);
+      cutNote =
+        cutPct > 1
+          ? `~${cutPct}% of height is cut (top & bottom)`
+          : "Almost no crop — image matches the frame";
+    } else {
+      cutNote = "No crop — image matches the frame exactly";
+    }
+  }
+
+  return (
+    <div className={styles.cropBlock}>
+      <div className={styles.cropLabel}>Live preview ({deviceLabel})</div>
+      <div
+        className={styles.liveFrame}
+        style={{ aspectRatio: String(aspect) }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" />
+      </div>
+
+      <div className={styles.cropLabel}>Full image — shaded = cut off on site</div>
+      <div className={styles.fullFrame}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt=""
+          onLoad={(e) =>
+            setNat({
+              w: e.currentTarget.naturalWidth,
+              h: e.currentTarget.naturalHeight,
+            })
+          }
+        />
+        <div className={styles.cutOverlay} aria-hidden>
+          <div className={styles.cutWindow} style={windowStyle} />
+        </div>
+      </div>
+      <p className={styles.cutNote}>{cutNote}</p>
+    </div>
+  );
 }
 
 export default function BannerManager({ device }) {
@@ -24,6 +107,7 @@ export default function BannerManager({ device }) {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
   const isDesktop = device === "desktop";
+  const aspect = ASPECT[device] || ASPECT.desktop;
 
   const load = async () => {
     setLoading(true);
@@ -47,11 +131,9 @@ export default function BannerManager({ device }) {
         device,
         position: slides.length,
         is_active: true,
-        title: isDesktop ? "Premium Iron Cookware," : null,
-        title_highlight: isDesktop ? "Built to Last" : null,
-        subtitle: isDesktop
-          ? "Durable, traditional craftsmanship for your kitchen."
-          : null,
+        title: null,
+        title_highlight: null,
+        subtitle: null,
       });
       toast.success("Slide added");
       load();
@@ -64,9 +146,9 @@ export default function BannerManager({ device }) {
     setSavingId(slide.id);
     try {
       await updateBanner(slide.id, {
-        title: slide.title,
-        title_highlight: slide.title_highlight,
-        subtitle: slide.subtitle,
+        title: null,
+        title_highlight: null,
+        subtitle: null,
         link_url: slide.link_url || null,
         position: Number(slide.position) || 0,
         is_active: slide.is_active,
@@ -125,8 +207,8 @@ export default function BannerManager({ device }) {
             {isDesktop ? "Desktop Banner" : "Mobile Banner"}
           </h2>
           <p className={styles.subtitle}>
-            Manage homepage {device} slides. Add at least 3 slides; you can add
-            more anytime.
+            Image + optional link only. Preview shows exactly what visitors see
+            and which edges get cropped ({isDesktop ? "21∶8" : "4∶5"}).
           </p>
         </div>
         <button type="button" className={styles.addBtn} onClick={handleAdd}>
@@ -166,16 +248,11 @@ export default function BannerManager({ device }) {
 
               <div className={styles.cardBody}>
                 <div className={styles.imageCol}>
-                  <div className={styles.preview}>
-                    {slide.image_url ? (
-                      <img
-                        src={imageSrc(slide.image_url)}
-                        alt={`Slide ${index + 1}`}
-                      />
-                    ) : (
-                      <span>No image</span>
-                    )}
-                  </div>
+                  <CropPreview
+                    src={imageSrc(slide.image_url)}
+                    aspect={aspect}
+                    deviceLabel={isDesktop ? "desktop" : "mobile"}
+                  />
                   <label className={styles.uploadBtn}>
                     Upload image
                     <input
@@ -204,41 +281,6 @@ export default function BannerManager({ device }) {
                     />
                   </label>
 
-                  {isDesktop && (
-                    <>
-                      <label>
-                        Title
-                        <input
-                          value={slide.title || ""}
-                          onChange={(e) =>
-                            updateLocal(slide.id, { title: e.target.value })
-                          }
-                        />
-                      </label>
-                      <label>
-                        Title highlight
-                        <input
-                          value={slide.title_highlight || ""}
-                          onChange={(e) =>
-                            updateLocal(slide.id, {
-                              title_highlight: e.target.value,
-                            })
-                          }
-                        />
-                      </label>
-                      <label>
-                        Subtitle
-                        <textarea
-                          rows={3}
-                          value={slide.subtitle || ""}
-                          onChange={(e) =>
-                            updateLocal(slide.id, { subtitle: e.target.value })
-                          }
-                        />
-                      </label>
-                    </>
-                  )}
-
                   <label>
                     Link URL (optional)
                     <input
@@ -246,9 +288,13 @@ export default function BannerManager({ device }) {
                       onChange={(e) =>
                         updateLocal(slide.id, { link_url: e.target.value })
                       }
-                      placeholder="/shop"
+                      placeholder="/shop or https://…"
                     />
                   </label>
+                  <p className={styles.fieldHint}>
+                    When someone clicks the banner, they go to this URL. Leave
+                    blank to send them to Shop.
+                  </p>
                 </div>
               </div>
 

@@ -192,8 +192,13 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   color: #f5d78a;
+}
+
+.cardRating > span:first-child {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
 
 .cardRating .reviews {
@@ -384,10 +389,12 @@
 .stars {
   color: #e6a800;
   letter-spacing: 0.02em;
+  font-size: 1.05rem;
 }
 
 .ratingNum {
   font-weight: var(--font-bold);
+  font-size: 0.95rem;
 }
 
 .reviews {

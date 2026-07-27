@@ -8,6 +8,7 @@ export function getProductSocialProof(id) {
   return {
     rating: 4.9,
     reviews,
-    label: `${reviews.toLocaleString("en-IN")}+ Reviews`,
+    ratingLabel: "(4.9)",
+    label: `${reviews.toLocaleString("en-IN")} Reviews`,
   };
 }

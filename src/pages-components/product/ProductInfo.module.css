@@ -48,12 +48,14 @@
   gap: 0.4rem;
   flex-wrap: wrap;
   color: #0f172a;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .stars {
   color: #f5a623;
   letter-spacing: 0.04em;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .priceRow {

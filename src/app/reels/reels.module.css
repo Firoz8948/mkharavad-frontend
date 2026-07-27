@@ -215,18 +215,18 @@
 .stars {
   color: #f5a623;
   letter-spacing: 0.02em;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
 .ratingNum {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text, #0f172a);
 }
 
 .reviews {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--text-muted, #64748b);
 }
 

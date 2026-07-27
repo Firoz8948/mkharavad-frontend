@@ -9,6 +9,10 @@ import styles from "./HeroSection.module.css";
 
 const SLIDE_DURATION = 5000;
 
+/** Keep in sync with admin BannerManager crop preview. */
+export const DESKTOP_BANNER_ASPECT = 21 / 8;
+export const MOBILE_BANNER_ASPECT = 4 / 5;
+
 function resolveImage(url) {
   if (!url) return "";
   if (url.startsWith("http") || url.startsWith("/assets")) return url;
@@ -16,15 +20,13 @@ function resolveImage(url) {
 }
 
 function mapSlides(items) {
-  const active = (items || []).filter((s) => s.image_url || s.image);
-  return active.map((s) => ({
-    id: s.id,
-    image: resolveImage(s.image_url || s.image),
-    title: s.title || "",
-    title_highlight: s.title_highlight || s.titleHighlight || "",
-    subtitle: s.subtitle || "",
-    link_url: s.link_url || null,
-  }));
+  return (items || [])
+    .filter((s) => s.image_url || s.image)
+    .map((s) => ({
+      id: s.id,
+      image: resolveImage(s.image_url || s.image),
+      link_url: s.link_url || null,
+    }));
 }
 
 export default function HeroSection() {
@@ -90,9 +92,8 @@ export default function HeroSection() {
     resetTimer();
   };
 
-  const deskSlide =
-    desktopSlides[current % Math.max(desktopSlides.length, 1)] || desktopSlides[0];
-  const dotsCount = desktopSlides.length || mobileSlides.length;
+  const desktopDots = desktopSlides.length;
+  const mobileDots = mobileSlides.length;
 
   if (loaded && !desktopSlides.length && !mobileSlides.length) {
     return null;
@@ -102,17 +103,14 @@ export default function HeroSection() {
     return <section className={styles.heroWrapper} aria-hidden />;
   }
 
-  const hasCopy = Boolean(
-    deskSlide?.title || deskSlide?.title_highlight || deskSlide?.subtitle
-  );
-
   return (
     <section className={styles.heroWrapper}>
-      {/* Desktop: full-bleed banners from admin */}
       <div className={`${styles.hero} ${styles.desktopHero}`}>
         <div className={styles.bannerStage}>
           {desktopSlides.map((item, index) => {
-            const visible = index === current % desktopSlides.length;
+            const visible =
+              desktopSlides.length > 0 &&
+              index === current % desktopSlides.length;
             const href = item.link_url || "/shop";
             return (
               <Link
@@ -125,58 +123,78 @@ export default function HeroSection() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.image}
-                  alt={item.title || `Banner ${index + 1}`}
+                  alt={`Banner ${index + 1}`}
                   className={styles.bannerImage}
                 />
               </Link>
             );
           })}
-          {hasCopy && (
-            <div className={styles.bannerCopy}>
-              <h1 className={styles.title}>
-                {deskSlide?.title}{" "}
-                {deskSlide?.title_highlight ? (
-                  <span>{deskSlide.title_highlight}</span>
-                ) : null}
-              </h1>
-              {deskSlide?.subtitle ? (
-                <p className={styles.subtitle}>{deskSlide.subtitle}</p>
-              ) : null}
-              <Link href={deskSlide?.link_url || "/shop"} className={styles.primary}>
-                Shop Now
-              </Link>
+          {desktopDots > 1 && (
+            <div className={styles.dots}>
+              {Array.from({ length: desktopDots }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`${styles.dot} ${
+                    i === current % desktopDots ? styles.dotActive : ""
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDotClick(i);
+                  }}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
             </div>
           )}
         </div>
       </div>
 
       <div className={styles.mobileHero}>
-        {mobileSlides.map((item, index) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={item.id}
-            src={item.image}
-            alt={`Slide ${index + 1}`}
-            className={`${styles.mobileSlideImage} ${
-              index === current % mobileSlides.length ? styles.slideVisible : ""
-            }`}
-          />
-        ))}
-      </div>
-
-      {dotsCount > 1 && (
-        <div className={styles.dots}>
-          {Array.from({ length: dotsCount }).map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`${styles.dot} ${i === current % dotsCount ? styles.dotActive : ""}`}
-              onClick={() => handleDotClick(i)}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
+        <div className={styles.mobileStage}>
+          {mobileSlides.map((item, index) => {
+            const visible =
+              mobileSlides.length > 0 && index === current % mobileSlides.length;
+            const href = item.link_url || "/shop";
+            return (
+              <Link
+                key={item.id}
+                href={href}
+                className={`${styles.mobileSlide} ${visible ? styles.slideVisible : ""}`}
+                tabIndex={visible ? 0 : -1}
+                aria-hidden={!visible}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.image}
+                  alt={`Banner ${index + 1}`}
+                  className={styles.mobileSlideImage}
+                />
+              </Link>
+            );
+          })}
+          {mobileDots > 1 && (
+            <div className={styles.dots}>
+              {Array.from({ length: mobileDots }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`${styles.dot} ${
+                    i === current % mobileDots ? styles.dotActive : ""
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDotClick(i);
+                  }}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </section>
   );
 }

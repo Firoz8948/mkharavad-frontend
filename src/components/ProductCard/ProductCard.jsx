@@ -85,7 +85,7 @@ export default function ProductCard({ product }) {
           <h3 className={styles.name}>{product.name}</h3>
           <div className={styles.rating} aria-label={`${proof.rating} stars`}>
             <span className={styles.stars}>★★★★★</span>
-            <span className={styles.ratingNum}>{proof.rating}</span>
+            <span className={styles.ratingNum}>{proof.ratingLabel}</span>
             <span className={styles.reviews}>{proof.label}</span>
           </div>
 

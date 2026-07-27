@@ -144,7 +144,7 @@ export default function ProductInfo({ product }) {
       </div>
       <div className={styles.rating}>
         <span className={styles.stars}>★★★★★</span>
-        <strong>{proof.rating}</strong>
+        <strong>{proof.ratingLabel}</strong>
         <span>{proof.label}</span>
       </div>
 

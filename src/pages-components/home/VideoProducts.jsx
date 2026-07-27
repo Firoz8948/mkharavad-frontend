@@ -316,7 +316,7 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
         <h3 className={styles.name}>{item.name}</h3>
         <div className={styles.cardRating} aria-label={`${proof.rating} stars`}>
           <span>★★★★★</span>
-          <span>{proof.rating}</span>
+          <span>{proof.ratingLabel}</span>
           <span className={styles.reviews}>{proof.label}</span>
         </div>
 
@@ -462,7 +462,7 @@ function VideoProductModal({ item, onClose, onAdd, onBuyNow }) {
 
             <div className={styles.rating} aria-label={`${proof.rating} stars`}>
               <span className={styles.stars}>★★★★★</span>
-              <span className={styles.ratingNum}>{proof.rating}</span>
+              <span className={styles.ratingNum}>{proof.ratingLabel}</span>
               <span className={styles.reviews}>{proof.label}</span>
             </div>
 
