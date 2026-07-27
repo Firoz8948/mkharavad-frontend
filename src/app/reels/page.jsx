@@ -161,20 +161,22 @@ function ReelsContent() {
           <Link href="/">Go home</Link>
         </div>
       ) : (
-        <div className={styles.scroller} ref={containerRef}>
-          {items.map((item, idx) => (
-            <ReelSlide
-              key={item.id}
-              item={item}
-              index={idx}
-              slideRef={(el) => (slideRefs.current[idx] = el)}
-              videoRef={(el) => (videoRefs.current[idx] = el)}
-              expanded={expandedId === item.id}
-              onToggleExpand={(val) => setExpandedId(val ? item.id : null)}
-              onAdd={handleAdd}
-              onBuyNow={handleBuyNow}
-            />
-          ))}
+        <div className={styles.phoneFrame}>
+          <div className={styles.scroller} ref={containerRef}>
+            {items.map((item, idx) => (
+              <ReelSlide
+                key={item.id}
+                item={item}
+                index={idx}
+                slideRef={(el) => (slideRefs.current[idx] = el)}
+                videoRef={(el) => (videoRefs.current[idx] = el)}
+                expanded={expandedId === item.id}
+                onToggleExpand={(val) => setExpandedId(val ? item.id : null)}
+                onAdd={handleAdd}
+                onBuyNow={handleBuyNow}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -224,6 +226,18 @@ function ReelSlide({
     touchStartY.current = null;
   };
 
+  const handleMouseDown = (e) => {
+    touchStartY.current = e.clientY;
+  };
+
+  const handleMouseUp = (e) => {
+    if (touchStartY.current == null) return;
+    const delta = e.clientY - touchStartY.current;
+    if (delta < -28 && !expanded) onToggleExpand(true);
+    else if (delta > 28 && expanded) onToggleExpand(false);
+    touchStartY.current = null;
+  };
+
   return (
     <div className={styles.slide} ref={slideRef} data-index={index}>
       {item.video_url ? (
@@ -263,6 +277,8 @@ function ReelSlide({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}

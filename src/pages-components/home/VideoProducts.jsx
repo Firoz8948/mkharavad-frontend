@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,17 +6,11 @@ import toast from "react-hot-toast";
 import {
   FiChevronLeft,
   FiChevronRight,
-  FiMinus,
-  FiPlus,
   FiShare2,
   FiShoppingCart,
-  FiVolume2,
-  FiVolumeX,
-  FiX,
 } from "react-icons/fi";
 
 import BuyNowModal, { useBuyNow } from "@/components/BuyNowModal/BuyNowModal";
-import { ProductImages } from "@/pages-components/product";
 import { useCart } from "@/hooks/useCart";
 import { calcDiscount, formatPrice } from "@/utils/formatPrice";
 import { mediaUrl } from "@/utils/mediaUrl";
@@ -58,7 +52,6 @@ async function handleShareClick(item) {
 export default function VideoProducts() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState(null);
   const [scrollState, setScrollState] = useState({ left: false, right: true });
   const rowRef = useRef(null);
   const router = useRouter();
@@ -93,11 +86,7 @@ export default function VideoProducts() {
   };
 
   const handleOpen = (item) => {
-    if (isMobile) {
-      router.push(`/reels?v=${item.id}`);
-    } else {
-      setActiveItem(item);
-    }
+    router.push(`/reels?v=${item.id}`);
   };
 
   const handleAdd = (item, qty = 1) => {
@@ -106,7 +95,6 @@ export default function VideoProducts() {
 
   const handleBuyNow = (item, qty = 1) => {
     buyNow.openBuyNow(toCartProduct(item), qty, videoCartOptions(item));
-    setActiveItem(null);
   };
 
   if (!loading && items.length === 0) return null;
@@ -168,15 +156,6 @@ export default function VideoProducts() {
           </div>
         )}
       </div>
-
-      {!isMobile && activeItem && (
-        <VideoProductModal
-          item={activeItem}
-          onClose={() => setActiveItem(null)}
-          onAdd={handleAdd}
-          onBuyNow={handleBuyNow}
-        />
-      )}
 
       <BuyNowModal
         open={buyNow.open}
@@ -315,7 +294,7 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
         <span className={styles.category}>{item.category}</span>
         <h3 className={styles.name}>{item.name}</h3>
         <div className={styles.cardRating} aria-label={`${proof.rating} stars`}>
-          <span>★★★★★</span>
+          <span>â˜…â˜…â˜…â˜…â˜…</span>
           <span>{proof.ratingLabel}</span>
           <span className={styles.reviews}>{proof.label}</span>
         </div>
@@ -341,181 +320,6 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
               type="button"
               className={styles.buyBtn}
               onClick={stopAnd(onBuyNow)}
-              disabled={soldOut}
-            >
-              {soldOut ? "Sold out" : "Buy Now"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function VideoProductModal({ item, onClose, onAdd, onBuyNow }) {
-  const [qty, setQty] = useState(1);
-  const [muted, setMuted] = useState(true);
-  const videoRef = useRef(null);
-  const proof = getProductSocialProof(item.product_id || item.id);
-  const discount = calcDiscount(item.mrp, item.price);
-  const soldOut = item.stock === 0;
-
-  useEffect(() => {
-    const { body, documentElement } = document;
-    const prevBody = body.style.overflow;
-    const prevHtml = documentElement.style.overflow;
-    body.style.overflow = "hidden";
-    documentElement.style.overflow = "hidden";
-    return () => {
-      body.style.overflow = prevBody;
-      documentElement.style.overflow = prevHtml;
-    };
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  useEffect(() => {
-    videoRef.current?.play().catch(() => {});
-  }, []);
-
-  return (
-    <div className={styles.modalOverlay} onClick={onClose} role="presentation">
-      <div
-        className={styles.modalPanel}
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label={item.name}
-      >
-        <button
-          type="button"
-          className={styles.modalClose}
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <FiX size={20} />
-        </button>
-
-        <div className={styles.modalVideo}>
-          {item.video_url ? (
-            <video
-              ref={videoRef}
-              className={styles.modalVideoEl}
-              src={mediaUrl(item.video_url, API_URL)}
-              autoPlay
-              loop
-              muted={muted}
-              playsInline
-            />
-          ) : (
-            <div className={styles.videoPlaceholder}>
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="3" />
-                <polygon points="10,8 16,12 10,16" fill="currentColor" />
-              </svg>
-              <span>No video yet</span>
-            </div>
-          )}
-          {item.video_url && (
-            <button
-              type="button"
-              className={styles.muteBtn}
-              onClick={() => setMuted((m) => !m)}
-              aria-label={muted ? "Unmute video" : "Mute video"}
-            >
-              {muted ? <FiVolumeX size={17} /> : <FiVolume2 size={17} />}
-            </button>
-          )}
-        </div>
-
-        <div className={styles.modalInfo}>
-          <div className={styles.modalInfoScroll}>
-            <ProductImages images={item.images} name={item.name} />
-
-            <div className={styles.modalHeadRow}>
-              {item.category && (
-                <span className={styles.category}>{item.category}</span>
-              )}
-              <button
-                type="button"
-                className={styles.modalShareBtn}
-                onClick={() => handleShareClick(item)}
-                aria-label="Share this product"
-              >
-                <FiShare2 size={14} />
-                Share
-              </button>
-            </div>
-
-            <h2 className={styles.modalName}>{item.name}</h2>
-
-            <div className={styles.rating} aria-label={`${proof.rating} stars`}>
-              <span className={styles.stars}>★★★★★</span>
-              <span className={styles.ratingNum}>{proof.ratingLabel}</span>
-              <span className={styles.reviews}>{proof.label}</span>
-            </div>
-
-            <div className={styles.modalPriceRow}>
-              <span className={styles.modalPrice}>{formatPrice(item.price)}</span>
-              {item.mrp > item.price && (
-                <>
-                  <span className={styles.modalMrp}>{formatPrice(item.mrp)}</span>
-                  <span className={styles.modalSave}>{discount}% off</span>
-                </>
-              )}
-            </div>
-
-            {item.description && (
-              <p className={styles.modalDesc}>{item.description}</p>
-            )}
-          </div>
-
-          <div className={styles.modalActions}>
-            {!soldOut && (
-              <div className={styles.qty}>
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  aria-label="Decrease quantity"
-                >
-                  <FiMinus size={14} />
-                </button>
-                <span>{qty}</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setQty((q) => Math.min(item.stock || 99, q + 1))
-                  }
-                  aria-label="Increase quantity"
-                >
-                  <FiPlus size={14} />
-                </button>
-              </div>
-            )}
-            <button
-              type="button"
-              className={styles.modalAddBtn}
-              onClick={() => onAdd(item, qty)}
-              disabled={soldOut}
-            >
-              <FiShoppingCart size={16} />
-              Add to Cart
-            </button>
-            <button
-              type="button"
-              className={styles.modalBuyBtn}
-              onClick={() => onBuyNow(item, qty)}
               disabled={soldOut}
             >
               {soldOut ? "Sold out" : "Buy Now"}

@@ -15,6 +15,62 @@
   }
 }
 
+/* Desktop: same mobile-sized reel phone in the center */
+@media (min-width: 861px) {
+  .page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b0b0f;
+  }
+
+  .phoneFrame {
+    position: relative;
+    width: min(420px, 42vw);
+    height: min(860px, 92vh);
+    border-radius: 28px;
+    overflow: hidden;
+    background: #000;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.08),
+      0 24px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  .backBtn,
+  .shareBtn {
+    /* Keep controls over the phone frame */
+    top: calc((100vh - min(860px, 92vh)) / 2 + 14px);
+  }
+
+  .backBtn {
+    left: calc(50% - min(420px, 42vw) / 2 + 14px);
+  }
+
+  .shareBtn {
+    right: calc(50% - min(420px, 42vw) / 2 + 14px);
+  }
+
+  .loading,
+  .empty {
+    width: min(420px, 42vw);
+    height: min(860px, 92vh);
+    border-radius: 28px;
+    background: #111;
+  }
+}
+
+.phoneFrame {
+  position: absolute;
+  inset: 0;
+}
+
+@media (min-width: 861px) {
+  .phoneFrame {
+    position: relative;
+    inset: auto;
+  }
+}
+
 .scroller {
   position: absolute;
   inset: 0;

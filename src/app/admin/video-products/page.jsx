@@ -6,6 +6,8 @@ import {
   createVideoProduct,
   updateVideoProduct,
   deleteVideoProduct,
+  getProductsForMapping,
+  getAdminProduct,
 } from "@/services/adminService";
 import styles from "./video-products.module.css";
 import { mediaUrl } from "@/utils/mediaUrl";
@@ -34,6 +36,11 @@ export default function AdminVideoProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [mode, setMode] = useState("scratch"); // scratch | attach
+  const [attachedProductId, setAttachedProductId] = useState(null);
+  const [attachedLabel, setAttachedLabel] = useState("");
+  const [productOptions, setProductOptions] = useState([]);
+  const [productSearch, setProductSearch] = useState("");
   const [videoFile, setVideoFile] = useState(null);
   const [videoPreview, setVideoPreview] = useState(null);
   const [imageFiles, setImageFiles] = useState([]);
@@ -55,11 +62,28 @@ export default function AdminVideoProductsPage() {
     }
   };
 
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    getProductsForMapping()
+      .then((res) => setProductOptions(res.data || []))
+      .catch(() => setProductOptions([]));
+  }, [modalOpen]);
+
+  const resetAttach = () => {
+    setAttachedProductId(null);
+    setAttachedLabel("");
+    setProductSearch("");
+  };
 
   const openAdd = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setMode("scratch");
+    resetAttach();
     setVideoFile(null);
     setVideoPreview(null);
     setImageFiles([]);
@@ -84,11 +108,47 @@ export default function AdminVideoProductsPage() {
       breadth_cm: item.breadth_cm != null ? String(item.breadth_cm) : "",
       height_cm: item.height_cm != null ? String(item.height_cm) : "",
     });
+    if (item.product_id) {
+      setMode("attach");
+      setAttachedProductId(item.product_id);
+      setAttachedLabel(item.name);
+    } else {
+      setMode("scratch");
+      resetAttach();
+    }
     setVideoFile(null);
     setVideoPreview(item.video_url ? mediaUrl(item.video_url, API_BASE) : null);
     setImageFiles([]);
     setExistingImages(Array.isArray(item.images) ? item.images : []);
     setModalOpen(true);
+  };
+
+  const applyAttachedProduct = async (productId) => {
+    try {
+      const res = await getAdminProduct(productId);
+      const p = res.data;
+      setAttachedProductId(p.id);
+      setAttachedLabel(p.name);
+      setForm((prev) => ({
+        ...prev,
+        name: p.name || "",
+        description: p.description || "",
+        price: String(p.price ?? ""),
+        mrp: String(p.mrp ?? p.price ?? ""),
+        category: p.category || prev.category || "Reels",
+        stock: String(p.stock ?? 0),
+        unit: p.unit || "piece",
+        weight: p.weight != null ? String(p.weight) : "",
+        length_cm: p.length_cm != null ? String(p.length_cm) : "",
+        breadth_cm: p.breadth_cm != null ? String(p.breadth_cm) : "",
+        height_cm: p.height_cm != null ? String(p.height_cm) : "",
+      }));
+      setExistingImages(Array.isArray(p.images) ? p.images : []);
+      setImageFiles([]);
+      setMode("attach");
+    } catch {
+      alert("Failed to load product details.");
+    }
   };
 
   const handleVideoFile = (file) => {
@@ -99,6 +159,10 @@ export default function AdminVideoProductsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (mode === "attach" && !attachedProductId) {
+      alert("Select a product to attach, or switch to Create from scratch.");
+      return;
+    }
     if (!form.name.trim() || !form.price || !form.mrp || !form.category.trim()) {
       alert("Name, price, MRP and category are required.");
       return;
@@ -119,9 +183,18 @@ export default function AdminVideoProductsPage() {
       if (form.length_cm !== "") fd.append("length_cm", form.length_cm);
       if (form.breadth_cm !== "") fd.append("breadth_cm", form.breadth_cm);
       if (form.height_cm !== "") fd.append("height_cm", form.height_cm);
-      fd.append("images_json", JSON.stringify(existingImages));
+
+      if (mode === "attach" && attachedProductId) {
+        fd.append("product_id", String(attachedProductId));
+        // Images come from the attached product live — don't overwrite with empties
+        fd.append("images_json", JSON.stringify([]));
+      } else {
+        if (editing) fd.append("clear_attached", "true");
+        fd.append("images_json", JSON.stringify(existingImages));
+        imageFiles.forEach((f) => fd.append("images", f));
+      }
+
       if (videoFile) fd.append("video", videoFile);
-      imageFiles.forEach((f) => fd.append("images", f));
 
       if (editing) {
         await updateVideoProduct(editing.id, fd);
@@ -194,7 +267,10 @@ export default function AdminVideoProductsPage() {
               </div>
               <div className={styles.cardBody}>
                 <h3 className={styles.itemName}>{item.name}</h3>
-                <span className={styles.itemCategory}>{item.category}</span>
+                <span className={styles.itemCategory}>
+                  {item.category}
+                  {item.product_id ? " · Attached" : ""}
+                </span>
                 <div className={styles.itemPrices}>
                   <span className={styles.itemPrice}>₹{item.price.toLocaleString("en-IN")}</span>
                   {item.mrp > item.price && (
@@ -241,6 +317,87 @@ export default function AdminVideoProductsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className={styles.modalBody}>
+              <div className={styles.modeRow}>
+                <button
+                  type="button"
+                  className={`${styles.modeBtn} ${mode === "scratch" ? styles.modeBtnActive : ""}`}
+                  onClick={() => {
+                    setMode("scratch");
+                    resetAttach();
+                  }}
+                >
+                  Create from scratch
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modeBtn} ${mode === "attach" ? styles.modeBtnActive : ""}`}
+                  onClick={() => setMode("attach")}
+                >
+                  Attach a product
+                </button>
+              </div>
+
+              {mode === "attach" && (
+                <div className={styles.attachBox}>
+                  <label className={styles.label}>Search & attach product</label>
+                  <input
+                    className={styles.input}
+                    placeholder="Type product name…"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                  />
+                  {attachedProductId ? (
+                    <div className={styles.attachedChip}>
+                      <span>
+                        Attached: <strong>{attachedLabel}</strong> (#{attachedProductId})
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          resetAttach();
+                          setExistingImages([]);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.productPickList}>
+                      {productOptions
+                        .filter((p) =>
+                          p.name
+                            .toLowerCase()
+                            .includes(productSearch.trim().toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            className={styles.productPickItem}
+                            onClick={() => applyAttachedProduct(p.id)}
+                          >
+                            {p.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={mediaUrl(p.image, API_BASE)} alt="" />
+                            ) : (
+                              <span className={styles.pickPlaceholder}>—</span>
+                            )}
+                            <span>
+                              {p.name}
+                              <em>{p.category || ""}</em>
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                  <p className={styles.attachHint}>
+                    Preview uses this product&apos;s images, price and details.
+                    You still upload the reel video on the right.
+                  </p>
+                </div>
+              )}
+
               <div className={styles.formGrid}>
                 {/* Left — fields */}
                 <div className={styles.formLeft}>
@@ -252,6 +409,7 @@ export default function AdminVideoProductsPage() {
                       value={form.name}
                       onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                       required
+                      readOnly={mode === "attach" && !!attachedProductId}
                     />
                   </div>
 
@@ -386,38 +544,59 @@ export default function AdminVideoProductsPage() {
                   </div>
 
                   <div className={styles.field}>
-                    <label className={styles.label}>Product Images</label>
-                    <input
-                      ref={imagesRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) =>
-                        setImageFiles(Array.from(e.target.files || []))
-                      }
-                    />
-                    <div className={styles.imageRow}>
-                      {existingImages.map((url) => (
-                        <div key={url} className={styles.thumbWrap}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={mediaUrl(url, API_BASE)} alt="" />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setExistingImages((prev) => prev.filter((u) => u !== url))
-                            }
-                          >
-                            ✕
-                          </button>
+                    <label className={styles.label}>
+                      {mode === "attach" ? "Product Images (from attached product)" : "Product Images"}
+                    </label>
+                    {mode === "attach" ? (
+                      <div className={styles.imageRow}>
+                        {existingImages.length === 0 ? (
+                          <span className={styles.attachHint}>No images on attached product</span>
+                        ) : (
+                          existingImages.map((url) => (
+                            <div key={url} className={styles.thumbWrap}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={mediaUrl(url, API_BASE)} alt="" />
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          ref={imagesRef}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) =>
+                            setImageFiles(Array.from(e.target.files || []))
+                          }
+                        />
+                        <div className={styles.imageRow}>
+                          {existingImages.map((url) => (
+                            <div key={url} className={styles.thumbWrap}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={mediaUrl(url, API_BASE)} alt="" />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExistingImages((prev) =>
+                                    prev.filter((u) => u !== url)
+                                  )
+                                }
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          {imageFiles.map((f) => (
+                            <div key={f.name} className={styles.thumbWrap}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={URL.createObjectURL(f)} alt="" />
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                      {imageFiles.map((f) => (
-                        <div key={f.name} className={styles.thumbWrap}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={URL.createObjectURL(f)} alt="" />
-                        </div>
-                      ))}
-                    </div>
+                      </>
+                    )}
                   </div>
 
                   <div className={styles.field}>
