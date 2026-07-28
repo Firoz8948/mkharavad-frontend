@@ -10,6 +10,7 @@ import {
   VideoProducts,
   WhyChooseUs,
 } from "@/pages-components/home";
+import { fetchBanners } from "@/utils/homeData";
 import { pageMetadata } from "@/utils/seo";
 
 export const metadata = pageMetadata({
@@ -19,10 +20,40 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [desktopSlides, mobileSlides] = await Promise.all([
+    fetchBanners("desktop"),
+    fetchBanners("mobile"),
+  ]);
+
+  const desktopLcp = desktopSlides[0]?.image;
+  const mobileLcp = mobileSlides[0]?.image;
+
   return (
     <>
-      <HeroSection />
+      {desktopLcp ? (
+        <link
+          rel="preload"
+          as="image"
+          href={desktopLcp}
+          media="(min-width: 861px)"
+          fetchPriority="high"
+        />
+      ) : null}
+      {mobileLcp ? (
+        <link
+          rel="preload"
+          as="image"
+          href={mobileLcp}
+          media="(max-width: 860px)"
+          fetchPriority="high"
+        />
+      ) : null}
+
+      <HeroSection
+        initialDesktop={desktopSlides}
+        initialMobile={mobileSlides}
+      />
       <MarqueeBanner />
       <CategorySection />
       <FeaturedProducts />

@@ -127,6 +127,14 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
+  // Keep closed drawer out of the accessibility / tab order (aria-hidden alone is not enough).
+  useEffect(() => {
+    const el = drawerRef.current;
+    if (!el) return;
+    if (menuOpen) el.removeAttribute("inert");
+    else el.setAttribute("inert", "");
+  }, [menuOpen]);
+
   const headerClass = [styles.header, scrolled ? styles.scrolled : ""]
     .filter(Boolean)
     .join(" ");

@@ -1,5 +1,6 @@
 .wrap {
   background: var(--bg-soft);
+  min-height: 220px;
 }
 
 .sectionHeader {

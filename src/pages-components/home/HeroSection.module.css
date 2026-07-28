@@ -4,6 +4,14 @@
   background: #fff;
   margin: 0;
   padding: 0;
+  /* Reserve space before banners load (mobile square / desktop 21:8) */
+  min-height: min(100vw, 72vh);
+}
+
+@media (min-width: 861px) {
+  .heroWrapper {
+    min-height: clamp(280px, calc(100vw * 8 / 21), 560px);
+  }
 }
 
 .hero {

@@ -84,6 +84,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
+      <head>
+        <link rel="preconnect" href="https://mkharavad-media.b-cdn.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://api.mkharavad.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://mkharavad-media.b-cdn.net" />
+        <link rel="dns-prefetch" href="https://api.mkharavad.com" />
+      </head>
       <body>
         <MetaPixel />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
