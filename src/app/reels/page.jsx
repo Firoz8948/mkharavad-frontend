@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
@@ -21,31 +21,6 @@ import {
 import styles from "./reels.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-/** iOS Safari needs these set as attributes + properties before play(). */
-function prepareVideo(video) {
-  if (!video) return;
-  video.muted = true;
-  video.defaultMuted = true;
-  video.playsInline = true;
-  video.setAttribute("muted", "");
-  video.setAttribute("playsinline", "");
-  video.setAttribute("webkit-playsinline", "");
-}
-
-function playVideo(video) {
-  if (!video) return;
-  prepareVideo(video);
-  const run = () => {
-    prepareVideo(video);
-    return video.play().catch(() => {});
-  };
-  if (video.readyState >= 2) run();
-  else {
-    video.addEventListener("loadeddata", run, { once: true });
-    video.addEventListener("canplay", run, { once: true });
-  }
-}
 
 async function handleShare(item) {
   const res = await shareLink({
@@ -80,7 +55,6 @@ function ReelsContent() {
   const slideRefs = useRef([]);
   const videoRefs = useRef([]);
   const appliedDeepLink = useRef(false);
-  const activeIndexRef = useRef(0);
 
   useEffect(() => {
     fetchVideoProducts()
@@ -88,98 +62,51 @@ function ReelsContent() {
       .finally(() => setLoading(false));
   }, []);
 
-  const syncActiveFromScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || !items.length) return;
-    const h = container.clientHeight || 1;
-    const idx = Math.max(
-      0,
-      Math.min(items.length - 1, Math.round(container.scrollTop / h))
-    );
-    if (idx !== activeIndexRef.current) {
-      activeIndexRef.current = idx;
-      setActiveIndex(idx);
-    }
-    videoRefs.current.forEach((video, i) => {
-      if (!video) return;
-      if (i === idx) playVideo(video);
-      else video.pause();
-    });
-    const id = items[idx]?.id;
-    if (id != null && typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.set("v", String(id));
-      window.history.replaceState(null, "", url);
-    }
-  }, [items]);
-
-  // Deep link: jump to the requested video once layout is ready.
+  // Deep link: jump to the requested video once on load.
   useEffect(() => {
     if (appliedDeepLink.current) return;
     if (!items.length || !containerRef.current) return;
+    appliedDeepLink.current = true;
 
     const vParam = searchParams.get("v");
-    const go = () => {
-      const container = containerRef.current;
-      if (!container || appliedDeepLink.current) return;
-      const h = container.clientHeight;
-      if (!h) return;
-      appliedDeepLink.current = true;
-      if (!vParam) {
-        syncActiveFromScroll();
-        return;
-      }
-      const idx = items.findIndex((it) => String(it.id) === String(vParam));
-      if (idx > 0) {
-        container.scrollTo({ top: idx * h });
-        activeIndexRef.current = idx;
-        setActiveIndex(idx);
-      }
-      // Allow scroll to settle, then play.
-      window.requestAnimationFrame(() => syncActiveFromScroll());
-    };
+    if (!vParam) return;
+    const idx = items.findIndex((it) => String(it.id) === String(vParam));
+    if (idx > 0) {
+      containerRef.current.scrollTo({ top: idx * containerRef.current.clientHeight });
+      setActiveIndex(idx);
+    }
+  }, [items, searchParams]);
 
-    go();
-    const t = window.setTimeout(go, 120);
-    return () => window.clearTimeout(t);
-  }, [items, searchParams, syncActiveFromScroll]);
-
-  // Scroll-based sync is more reliable than IntersectionObserver on real iOS.
+  // Autoplay the video in view, pause the rest; keep the URL in sync.
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !items.length) return undefined;
 
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        ticking = false;
-        syncActiveFromScroll();
-      });
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const idx = Number(entry.target.dataset.index);
+          const video = videoRefs.current[idx];
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            setActiveIndex(idx);
+            if (video) video.play().catch(() => {});
+            const id = items[idx]?.id;
+            if (id != null && typeof window !== "undefined") {
+              const url = new URL(window.location.href);
+              url.searchParams.set("v", id);
+              window.history.replaceState(null, "", url);
+            }
+          } else if (video) {
+            video.pause();
+          }
+        });
+      },
+      { root: container, threshold: [0, 0.6, 1] }
+    );
 
-    container.addEventListener("scroll", onScroll, { passive: true });
-    // Initial play after paint.
-    const kick = window.setTimeout(() => syncActiveFromScroll(), 50);
-    const kick2 = window.setTimeout(() => syncActiveFromScroll(), 300);
-
-    return () => {
-      container.removeEventListener("scroll", onScroll);
-      window.clearTimeout(kick);
-      window.clearTimeout(kick2);
-    };
-  }, [items, syncActiveFromScroll]);
-
-  // Keep active reel playing when index changes (and resume after expand).
-  useEffect(() => {
-    activeIndexRef.current = activeIndex;
-    const video = videoRefs.current[activeIndex];
-    playVideo(video);
-    videoRefs.current.forEach((v, i) => {
-      if (v && i !== activeIndex) v.pause();
-    });
-  }, [activeIndex, items.length]);
+    slideRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [items]);
 
   useEffect(() => {
     setExpandedId(null);
@@ -199,10 +126,6 @@ function ReelsContent() {
 
   const handleBuyNow = (item, qty = 1) => {
     buyNow.openBuyNow(toCartProduct(item), qty, videoCartOptions(item));
-  };
-
-  const handleTapPlay = () => {
-    playVideo(videoRefs.current[activeIndex]);
   };
 
   const activeItem = items[activeIndex];
@@ -245,14 +168,12 @@ function ReelsContent() {
                 key={item.id}
                 item={item}
                 index={idx}
-                isActive={idx === activeIndex}
                 slideRef={(el) => (slideRefs.current[idx] = el)}
                 videoRef={(el) => (videoRefs.current[idx] = el)}
                 expanded={expandedId === item.id}
                 onToggleExpand={(val) => setExpandedId(val ? item.id : null)}
                 onAdd={handleAdd}
                 onBuyNow={handleBuyNow}
-                onTapPlay={handleTapPlay}
               />
             ))}
           </div>
@@ -273,20 +194,17 @@ function ReelsContent() {
 function ReelSlide({
   item,
   index,
-  isActive,
   slideRef,
   videoRef,
   expanded,
   onToggleExpand,
   onAdd,
   onBuyNow,
-  onTapPlay,
 }) {
   const touchStartY = useRef(null);
   const proof = getProductSocialProof(item.product_id || item.id);
   const discount = calcDiscount(item.mrp, item.price);
   const soldOut = item.stock === 0;
-  const poster = mediaUrl(item.images?.[0], API_URL);
 
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
@@ -327,13 +245,11 @@ function ReelSlide({
           ref={videoRef}
           className={styles.slideVideo}
           src={mediaUrl(item.video_url, API_URL)}
-          poster={poster || undefined}
           loop
           muted
           playsInline
-          preload={isActive ? "auto" : "metadata"}
+          preload="metadata"
           aria-label={item.name}
-          onClick={onTapPlay}
         />
       ) : (
         <div className={styles.slideNoVideo}>

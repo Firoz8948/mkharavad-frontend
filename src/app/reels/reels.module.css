@@ -7,17 +7,11 @@
   z-index: 250;
   background: #000;
   overflow: hidden;
-  /* Real iOS Safari: avoid 100vh / % height collapse that leaves black slides */
-  height: 100%;
-  height: 100dvh;
-  max-height: -webkit-fill-available;
 }
 
 @media (max-width: 860px) {
   .page {
     bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-    height: auto;
-    max-height: none;
   }
 }
 
@@ -68,8 +62,6 @@
 .phoneFrame {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
 @media (min-width: 861px) {
@@ -82,8 +74,6 @@
 .scroller {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   overscroll-behavior-y: contain;
@@ -100,8 +90,6 @@
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 100%;
-  flex-shrink: 0;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   background: #000;
@@ -115,10 +103,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  background: #000;
-  /* Promote to own layer — reduces black frames on iOS while decoding */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .slideNoVideo {

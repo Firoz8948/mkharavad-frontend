@@ -26,10 +26,7 @@ import styles from "./VideoProducts.module.css";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
-  });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
@@ -171,74 +168,57 @@ export default function VideoProducts() {
   );
 }
 
-function prepareInlineVideo(video) {
-  if (!video) return;
-  video.muted = true;
-  video.defaultMuted = true;
-  video.playsInline = true;
-  video.setAttribute("muted", "");
-  video.setAttribute("playsinline", "");
-  video.setAttribute("webkit-playsinline", "");
-}
-
 function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) {
   const cardRef = useRef(null);
   const videoRef = useRef(null);
   const [hovered, setHovered] = useState(false);
-  const [inView, setInView] = useState(false);
 
   const discount = calcDiscount(item.mrp, item.price);
   const soldOut = item.stock === 0;
   const proof = getProductSocialProof(item.product_id || item.id);
-  const videoUrl = item.video_url ? mediaUrl(item.video_url, API_URL) : "";
-  const poster = mediaUrl(item.images?.[0], API_URL);
-  const shouldPlay = Boolean(videoUrl) && (isMobile ? inView : hovered);
 
-  // Mobile: autoplay while the card is mostly on screen.
+  // Mobile: autoplay only while the card is mostly on screen
   useEffect(() => {
+    const video = videoRef.current;
     const card = cardRef.current;
-    if (!isMobile || !card || !videoUrl) return undefined;
+    if (!isMobile || !video || !card || !item.video_url) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setInView(entry.isIntersecting && entry.intersectionRatio >= 0.45);
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          video.muted = true;
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
       },
-      { threshold: [0, 0.35, 0.45, 0.55, 0.75, 1], root: null, rootMargin: "40px 0px" }
+      { threshold: [0, 0.35, 0.55, 0.75, 1], root: null, rootMargin: "0px" }
     );
 
     observer.observe(card);
-    return () => observer.disconnect();
-  }, [isMobile, videoUrl]);
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
+  }, [isMobile, item.video_url]);
 
+  // Desktop: play on hover
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !videoUrl) return undefined;
+    if (isMobile || !video || !item.video_url) return;
 
-    prepareInlineVideo(video);
-
-    if (shouldPlay) {
-      const run = () => {
-        prepareInlineVideo(video);
-        video.play().catch(() => {});
-      };
-      if (video.readyState >= 2) run();
-      else {
-        video.addEventListener("loadeddata", run, { once: true });
-        video.addEventListener("canplay", run, { once: true });
-      }
-      return () => video.pause();
-    }
-
-    video.pause();
-    if (!isMobile) {
+    if (hovered) {
+      video.muted = true;
+      video.play().catch(() => {});
+    } else {
+      video.pause();
       try {
         video.currentTime = 0;
       } catch {
-        /* ignore */
+        /* ignore seek errors */
       }
     }
-    return undefined;
-  }, [shouldPlay, videoUrl, isMobile]);
+  }, [hovered, isMobile, item.video_url]);
 
   const stopAnd = (fn) => (e) => {
     e.preventDefault();
@@ -263,16 +243,15 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
       }}
     >
       <div className={styles.videoWrap}>
-        {videoUrl ? (
+        {item.video_url ? (
           <video
             ref={videoRef}
             className={styles.video}
-            src={videoUrl}
-            poster={poster || undefined}
+            src={mediaUrl(item.video_url, API_URL)}
             loop
             muted
             playsInline
-            preload={shouldPlay || isMobile ? "auto" : "metadata"}
+            preload="metadata"
             aria-label={item.name}
           />
         ) : (
@@ -291,7 +270,7 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
             <span>No video yet</span>
           </div>
         )}
-        {!isMobile && videoUrl && !hovered && (
+        {!isMobile && item.video_url && !hovered && (
           <div className={styles.playHint} aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
               <polygon points="5,3 19,12 5,21" />
