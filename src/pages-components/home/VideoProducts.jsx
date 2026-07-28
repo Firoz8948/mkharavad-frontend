@@ -27,7 +27,10 @@ import styles from "./VideoProducts.module.css";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+  });
 
   useEffect(() => {
     const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
@@ -173,51 +176,95 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
   const cardRef = useRef(null);
   const videoRef = useRef(null);
   const [hovered, setHovered] = useState(false);
-  const [loadVideo, setLoadVideo] = useState(false);
+  const [near, setNear] = useState(false);
   const [inView, setInView] = useState(false);
 
   const discount = calcDiscount(item.mrp, item.price);
   const soldOut = item.stock === 0;
   const proof = getProductSocialProof(item.product_id || item.id);
   const poster = mediaUrl(item.images?.[0], API_URL);
-  const shouldPlay = isMobile ? inView : hovered;
-
-  // Only attach video src when the card should play (avoids multi-MB downloads).
-  useEffect(() => {
-    if (shouldPlay && item.video_url) setLoadVideo(true);
-  }, [shouldPlay, item.video_url]);
+  const videoUrl = item.video_url ? mediaUrl(item.video_url, API_URL) : "";
+  const shouldPlay = Boolean(videoUrl) && (isMobile ? inView : hovered);
+  // Mount once near viewport: paused = first-frame cover; playing = hover / mobile in-view.
+  const mountVideo = Boolean(videoUrl) && near;
 
   useEffect(() => {
     const card = cardRef.current;
-    if (!isMobile || !card || !item.video_url) return undefined;
+    if (!card || !videoUrl) return undefined;
 
-    const observer = new IntersectionObserver(
+    const nearIo = new IntersectionObserver(
       ([entry]) => {
-        setInView(entry.isIntersecting && entry.intersectionRatio >= 0.55);
+        if (entry.isIntersecting) setNear(true);
       },
-      { threshold: [0, 0.35, 0.55, 0.75, 1], root: null, rootMargin: "0px" }
+      { root: null, rootMargin: "240px 0px", threshold: 0.01 }
     );
+    nearIo.observe(card);
 
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, [isMobile, item.video_url]);
+    const playIo = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting && entry.intersectionRatio >= 0.4);
+      },
+      { threshold: [0, 0.25, 0.4, 0.6, 1], root: null, rootMargin: "0px" }
+    );
+    playIo.observe(card);
+
+    return () => {
+      nearIo.disconnect();
+      playIo.disconnect();
+    };
+  }, [videoUrl]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !loadVideo) return;
+    if (!video || !mountVideo) return undefined;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+
+    const tryPlay = () => {
+      video.muted = true;
+      return video.play().catch(() => {});
+    };
 
     if (shouldPlay) {
-      video.muted = true;
-      video.play().catch(() => {});
+      // Need real media data to play — metadata-only often stays black on iOS.
+      if (video.readyState >= 2) tryPlay();
+      else {
+        const onReady = () => tryPlay();
+        video.addEventListener("loadeddata", onReady);
+        video.addEventListener("canplay", onReady);
+        video.load();
+        return () => {
+          video.removeEventListener("loadeddata", onReady);
+          video.removeEventListener("canplay", onReady);
+          video.pause();
+        };
+      }
     } else {
       video.pause();
-      try {
-        video.currentTime = 0;
-      } catch {
-        /* ignore seek errors */
+      // Paint a still frame for cover when there is no product image.
+      if (!poster) {
+        const paint = () => {
+          try {
+            if (Number.isFinite(video.duration) && video.duration > 0) {
+              video.currentTime = Math.min(0.1, video.duration * 0.01);
+            }
+          } catch {
+            /* ignore */
+          }
+        };
+        if (video.readyState >= 1) paint();
+        else video.addEventListener("loadeddata", paint, { once: true });
       }
     }
-  }, [shouldPlay, loadVideo]);
+
+    return () => {
+      video.pause();
+    };
+  }, [shouldPlay, mountVideo, poster]);
 
   const stopAnd = (fn) => (e) => {
     e.preventDefault();
@@ -242,7 +289,7 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
       }}
     >
       <div className={styles.videoWrap}>
-        {poster ? (
+        {poster && !shouldPlay ? (
           <Image
             src={poster}
             alt=""
@@ -252,18 +299,22 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
             loading="lazy"
           />
         ) : null}
-        {loadVideo && item.video_url ? (
+
+        {mountVideo ? (
           <video
             ref={videoRef}
             className={styles.video}
-            src={mediaUrl(item.video_url, API_URL)}
+            src={videoUrl}
+            poster={poster || undefined}
             loop
             muted
             playsInline
-            preload="none"
+            preload={shouldPlay ? "auto" : "metadata"}
             aria-label={item.name}
           />
-        ) : !poster ? (
+        ) : null}
+
+        {!videoUrl && !poster ? (
           <div className={styles.videoPlaceholder}>
             <svg
               width="40"
@@ -279,7 +330,8 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
             <span>No video yet</span>
           </div>
         ) : null}
-        {!isMobile && item.video_url && !hovered && (
+
+        {!isMobile && videoUrl && !hovered && (
           <div className={styles.playHint} aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
               <polygon points="5,3 19,12 5,21" />
