@@ -301,11 +301,25 @@ function ReelSlide({
               </div>
             </div>
             <div className={styles.panelTeaserRight}>
-              <div className={styles.panelTeaserPrice}>
-                <span className={styles.panelPrice}>{formatPrice(item.price)}</span>
-                {item.mrp > item.price && (
-                  <span className={styles.panelMrp}>{formatPrice(item.mrp)}</span>
-                )}
+              <div className={styles.panelTeaserBuyCol}>
+                <button
+                  type="button"
+                  className={styles.panelTeaserBuyBtn}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onBuyNow(item);
+                  }}
+                  disabled={soldOut}
+                >
+                  {soldOut ? "Sold out" : "Buy"}
+                </button>
+                <div className={styles.panelTeaserPrice}>
+                  <span className={styles.panelPrice}>{formatPrice(item.price)}</span>
+                  {item.mrp > item.price && (
+                    <span className={styles.panelMrp}>{formatPrice(item.mrp)}</span>
+                  )}
+                </div>
               </div>
               <FiChevronUp
                 size={16}
