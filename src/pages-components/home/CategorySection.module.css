@@ -1,5 +1,6 @@
 .wrap {
   background: var(--bg-soft);
+  min-height: 220px;
 }
 
 .sectionHeader {
@@ -72,6 +73,7 @@
 }
 
 .catImgWrap {
+  position: relative;
   width: 240px;
   height: 240px;
   border-radius: 22px;
@@ -82,10 +84,7 @@
 }
 
 .catImg {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .catPlaceholder {

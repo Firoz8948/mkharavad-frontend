@@ -1,19 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import ReelsCategoryPreview from "@/components/ReelsCategoryPreview/ReelsCategoryPreview";
 import { getCategories } from "@/services/categoryService";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./CategorySection.module.css";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-function mediaUrl(path) {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  return `${API_BASE}${path}`;
-}
 
 export default function CategorySection() {
   const [categories, setCategories] = useState([]);
@@ -89,6 +83,7 @@ export default function CategorySection() {
         <div className={styles.desktopRow} ref={scrollRef}>
           {categories.map((cat) => {
             const isReels = !!cat.is_reels || cat.slug === "reels";
+            const imgSrc = mediaUrl(cat.image_url);
             return (
               <Link
                 key={cat.id}
@@ -98,15 +93,13 @@ export default function CategorySection() {
                 <div className={styles.catImgWrap}>
                   {isReels ? (
                     <ReelsCategoryPreview />
-                  ) : cat.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={mediaUrl(cat.image_url)}
+                  ) : imgSrc ? (
+                    <Image
+                      src={imgSrc}
                       alt={cat.name}
+                      fill
+                      sizes="(max-width: 1100px) 240px, 280px"
                       className={styles.catImg}
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
                     />
                   ) : (
                     <div className={styles.catPlaceholder}>

@@ -1,4 +1,5 @@
 import MarqueeBanner from "@/pages-components/home/MarqueeBanner";
+import LazySection from "@/components/LazySection/LazySection";
 
 import {
   CategorySection,
@@ -10,6 +11,7 @@ import {
   VideoProducts,
   WhyChooseUs,
 } from "@/pages-components/home";
+import { fetchBanners } from "@/utils/homeData";
 import { pageMetadata } from "@/utils/seo";
 
 export const metadata = pageMetadata({
@@ -19,18 +21,39 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [desktopSlides, mobileSlides] = await Promise.all([
+    fetchBanners("desktop"),
+    fetchBanners("mobile"),
+  ]);
+
   return (
     <>
-      <HeroSection />
+      <HeroSection
+        initialDesktop={desktopSlides}
+        initialMobile={mobileSlides}
+      />
       <MarqueeBanner />
       <CategorySection />
-      <FeaturedProducts />
-      <WhyChooseUs />
-      <VideoProducts />
-      <Testimonials />
-      <FaqSection />
-      <SubCategoryStrip />
+
+      <LazySection minHeight={520}>
+        <FeaturedProducts />
+      </LazySection>
+      <LazySection minHeight={280}>
+        <WhyChooseUs />
+      </LazySection>
+      <LazySection minHeight={520}>
+        <VideoProducts />
+      </LazySection>
+      <LazySection minHeight={320}>
+        <Testimonials />
+      </LazySection>
+      <LazySection minHeight={360}>
+        <FaqSection />
+      </LazySection>
+      <LazySection minHeight={280}>
+        <SubCategoryStrip />
+      </LazySection>
     </>
   );
 }

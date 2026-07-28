@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { getBanners } from "@/services/bannerService";
-import { API_URL } from "@/utils/constants";
+import { mapBannerSlides } from "@/utils/homeData";
 import styles from "./HeroSection.module.css";
 
 const SLIDE_DURATION = 5000;
@@ -13,30 +14,19 @@ const SLIDE_DURATION = 5000;
 export const DESKTOP_BANNER_ASPECT = 21 / 8; // 2100×800
 export const MOBILE_BANNER_ASPECT = 1; // 1∶1
 
-function resolveImage(url) {
-  if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("/assets")) return url;
-  return `${API_URL}${url}`;
-}
-
-function mapSlides(items) {
-  return (items || [])
-    .filter((s) => s.image_url || s.image)
-    .map((s) => ({
-      id: s.id,
-      image: resolveImage(s.image_url || s.image),
-      link_url: s.link_url || null,
-    }));
-}
-
-export default function HeroSection() {
-  const [desktopSlides, setDesktopSlides] = useState([]);
-  const [mobileSlides, setMobileSlides] = useState([]);
+export default function HeroSection({
+  initialDesktop = [],
+  initialMobile = [],
+}) {
+  const hasInitial = initialDesktop.length > 0 || initialMobile.length > 0;
+  const [desktopSlides, setDesktopSlides] = useState(initialDesktop);
+  const [mobileSlides, setMobileSlides] = useState(initialMobile);
   const [current, setCurrent] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(hasInitial);
   const timerRef = useRef(null);
 
   useEffect(() => {
+    if (hasInitial) return undefined;
     let cancelled = false;
     (async () => {
       try {
@@ -45,8 +35,8 @@ export default function HeroSection() {
           getBanners("mobile"),
         ]);
         if (cancelled) return;
-        setDesktopSlides(mapSlides(desk.data));
-        setMobileSlides(mapSlides(mob.data));
+        setDesktopSlides(mapBannerSlides(desk.data));
+        setMobileSlides(mapBannerSlides(mob.data));
       } catch {
         // leave empty — admin must add banners
       } finally {
@@ -56,7 +46,7 @@ export default function HeroSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasInitial]);
 
   const slideCount = Math.max(desktopSlides.length, mobileSlides.length, 1);
 
@@ -78,14 +68,6 @@ export default function HeroSection() {
     resetTimer();
     return () => clearInterval(timerRef.current);
   }, [resetTimer, slideCount]);
-
-  useEffect(() => {
-    [...desktopSlides, ...mobileSlides].forEach((slide) => {
-      if (!slide.image) return;
-      const img = new Image();
-      img.src = slide.image;
-    });
-  }, [desktopSlides, mobileSlides]);
 
   const handleDotClick = (index) => {
     setCurrent(index);
@@ -112,6 +94,7 @@ export default function HeroSection() {
               desktopSlides.length > 0 &&
               index === current % desktopSlides.length;
             const href = item.link_url || "/shop";
+            const isLcp = index === 0;
             return (
               <Link
                 key={item.id}
@@ -120,10 +103,14 @@ export default function HeroSection() {
                 tabIndex={visible ? 0 : -1}
                 aria-hidden={!visible}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={item.image}
                   alt={`Banner ${index + 1}`}
+                  fill
+                  sizes="100vw"
+                  priority={isLcp}
+                  fetchPriority={isLcp ? "high" : "auto"}
+                  loading={isLcp ? "eager" : "lazy"}
                   className={styles.bannerImage}
                 />
               </Link>
@@ -157,6 +144,7 @@ export default function HeroSection() {
             const visible =
               mobileSlides.length > 0 && index === current % mobileSlides.length;
             const href = item.link_url || "/shop";
+            const isLcp = index === 0;
             return (
               <Link
                 key={item.id}
@@ -165,10 +153,14 @@ export default function HeroSection() {
                 tabIndex={visible ? 0 : -1}
                 aria-hidden={!visible}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={item.image}
                   alt={`Banner ${index + 1}`}
+                  fill
+                  sizes="100vw"
+                  priority={isLcp}
+                  fetchPriority={isLcp ? "high" : "auto"}
+                  loading={isLcp ? "eager" : "lazy"}
                   className={styles.mobileSlideImage}
                 />
               </Link>

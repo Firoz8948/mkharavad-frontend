@@ -1,5 +1,6 @@
 .wrap {
   background: var(--bg-primary);
+  min-height: 480px;
 }
 
 .title {
@@ -13,6 +14,7 @@
 .rowWrap {
   position: relative;
   margin-top: var(--space-8);
+  min-height: 420px;
 }
 
 .grid {
@@ -92,10 +94,18 @@
 }
 
 .video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  z-index: 1;
+}
+
+.poster {
+  object-fit: cover;
+  z-index: 0;
 }
 
 .playHint {

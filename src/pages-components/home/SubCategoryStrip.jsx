@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { getCategories } from "@/services/categoryService";
+import { mediaUrl } from "@/utils/mediaUrl";
 import styles from "./SubCategoryStrip.module.css";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-function mediaUrl(path) {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  return `${API_BASE}${path}`;
-}
 
 export default function SubCategoryStrip({
   title = "Shop by Subcategory",
@@ -98,10 +92,13 @@ export default function SubCategoryStrip({
             >
               <div className={styles.imageWrap}>
                 {sub.image_url ? (
-                  <img
+                  <Image
                     src={mediaUrl(sub.image_url)}
                     alt={sub.name}
+                    fill
+                    sizes="148px"
                     className={styles.image}
+                    loading="lazy"
                   />
                 ) : (
                   <div className={styles.placeholder}>
