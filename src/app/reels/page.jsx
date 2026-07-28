@@ -82,34 +82,17 @@ function ReelsContent() {
     const container = containerRef.current;
     if (!container || !items.length) return undefined;
 
-    const playVideo = (video) => {
-      if (!video) return;
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-      const tryPlay = () => video.play().catch(() => {});
-      if (video.readyState >= 2) tryPlay();
-      else {
-        video.addEventListener("loadeddata", tryPlay, { once: true });
-        video.addEventListener("canplay", tryPlay, { once: true });
-        try {
-          video.load();
-        } catch {
-          /* ignore */
-        }
-      }
-    };
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const idx = Number(entry.target.dataset.index);
           const video = videoRefs.current[idx];
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
             setActiveIndex(idx);
-            playVideo(video);
+            if (video) {
+              video.muted = true;
+              video.play().catch(() => {});
+            }
             const id = items[idx]?.id;
             if (id != null && typeof window !== "undefined") {
               const url = new URL(window.location.href);
@@ -121,39 +104,12 @@ function ReelsContent() {
           }
         });
       },
-      { root: container, threshold: [0, 0.55, 1] }
+      { root: container, threshold: [0, 0.6, 1] }
     );
 
     slideRefs.current.forEach((el) => el && observer.observe(el));
-
-    // Kick the first visible reel (observer can miss the initial paint on mobile).
-    const kick = window.setTimeout(() => {
-      const idx = activeIndex || 0;
-      playVideo(videoRefs.current[idx]);
-    }, 80);
-
-    return () => {
-      observer.disconnect();
-      window.clearTimeout(kick);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => observer.disconnect();
   }, [items]);
-
-  // Keep the active reel playing when index changes (deep link / swipe).
-  useEffect(() => {
-    if (!items.length) return undefined;
-    const video = videoRefs.current[activeIndex];
-    if (!video) return undefined;
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    const tryPlay = () => video.play().catch(() => {});
-    if (video.readyState >= 2) tryPlay();
-    else video.addEventListener("loadeddata", tryPlay, { once: true });
-    return () => {
-      video.pause();
-    };
-  }, [activeIndex, items.length]);
 
   useEffect(() => {
     setExpandedId(null);
@@ -215,7 +171,6 @@ function ReelsContent() {
                 key={item.id}
                 item={item}
                 index={idx}
-                isActive={idx === activeIndex}
                 slideRef={(el) => (slideRefs.current[idx] = el)}
                 videoRef={(el) => (videoRefs.current[idx] = el)}
                 expanded={expandedId === item.id}
@@ -242,7 +197,6 @@ function ReelsContent() {
 function ReelSlide({
   item,
   index,
-  isActive,
   slideRef,
   videoRef,
   expanded,
@@ -294,11 +248,10 @@ function ReelSlide({
           ref={videoRef}
           className={styles.slideVideo}
           src={mediaUrl(item.video_url, API_URL)}
-          poster={mediaUrl(item.images?.[0], API_URL) || undefined}
           loop
           muted
           playsInline
-          preload={isActive ? "auto" : "metadata"}
+          preload="metadata"
           aria-label={item.name}
         />
       ) : (

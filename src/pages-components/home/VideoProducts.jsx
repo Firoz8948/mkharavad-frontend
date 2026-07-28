@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
@@ -176,95 +175,54 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
   const cardRef = useRef(null);
   const videoRef = useRef(null);
   const [hovered, setHovered] = useState(false);
-  const [near, setNear] = useState(false);
-  const [inView, setInView] = useState(false);
 
   const discount = calcDiscount(item.mrp, item.price);
   const soldOut = item.stock === 0;
   const proof = getProductSocialProof(item.product_id || item.id);
-  const poster = mediaUrl(item.images?.[0], API_URL);
   const videoUrl = item.video_url ? mediaUrl(item.video_url, API_URL) : "";
-  const shouldPlay = Boolean(videoUrl) && (isMobile ? inView : hovered);
-  // Mount once near viewport: paused = first-frame cover; playing = hover / mobile in-view.
-  const mountVideo = Boolean(videoUrl) && near;
 
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card || !videoUrl) return undefined;
-
-    const nearIo = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setNear(true);
-      },
-      { root: null, rootMargin: "240px 0px", threshold: 0.01 }
-    );
-    nearIo.observe(card);
-
-    const playIo = new IntersectionObserver(
-      ([entry]) => {
-        setInView(entry.isIntersecting && entry.intersectionRatio >= 0.4);
-      },
-      { threshold: [0, 0.25, 0.4, 0.6, 1], root: null, rootMargin: "0px" }
-    );
-    playIo.observe(card);
-
-    return () => {
-      nearIo.disconnect();
-      playIo.disconnect();
-    };
-  }, [videoUrl]);
-
+  // Mobile: autoplay while the card is mostly on screen (same as before).
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !mountVideo) return undefined;
+    const card = cardRef.current;
+    if (!isMobile || !video || !card || !videoUrl) return undefined;
 
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-
-    const tryPlay = () => {
-      video.muted = true;
-      return video.play().catch(() => {});
-    };
-
-    if (shouldPlay) {
-      // Need real media data to play — metadata-only often stays black on iOS.
-      if (video.readyState >= 2) tryPlay();
-      else {
-        const onReady = () => tryPlay();
-        video.addEventListener("loadeddata", onReady);
-        video.addEventListener("canplay", onReady);
-        video.load();
-        return () => {
-          video.removeEventListener("loadeddata", onReady);
-          video.removeEventListener("canplay", onReady);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          video.muted = true;
+          video.play().catch(() => {});
+        } else {
           video.pause();
-        };
-      }
+        }
+      },
+      { threshold: [0, 0.35, 0.55, 0.75, 1], root: null, rootMargin: "0px" }
+    );
+
+    observer.observe(card);
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
+  }, [isMobile, videoUrl]);
+
+  // Desktop: play on hover.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (isMobile || !video || !videoUrl) return;
+
+    if (hovered) {
+      video.muted = true;
+      video.play().catch(() => {});
     } else {
       video.pause();
-      // Paint a still frame for cover when there is no product image.
-      if (!poster) {
-        const paint = () => {
-          try {
-            if (Number.isFinite(video.duration) && video.duration > 0) {
-              video.currentTime = Math.min(0.1, video.duration * 0.01);
-            }
-          } catch {
-            /* ignore */
-          }
-        };
-        if (video.readyState >= 1) paint();
-        else video.addEventListener("loadeddata", paint, { once: true });
+      try {
+        video.currentTime = 0;
+      } catch {
+        /* ignore seek errors */
       }
     }
-
-    return () => {
-      video.pause();
-    };
-  }, [shouldPlay, mountVideo, poster]);
+  }, [hovered, isMobile, videoUrl]);
 
   const stopAnd = (fn) => (e) => {
     e.preventDefault();
@@ -289,32 +247,18 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
       }}
     >
       <div className={styles.videoWrap}>
-        {poster && !shouldPlay ? (
-          <Image
-            src={poster}
-            alt=""
-            fill
-            sizes="280px"
-            className={styles.poster}
-            loading="lazy"
-          />
-        ) : null}
-
-        {mountVideo ? (
+        {videoUrl ? (
           <video
             ref={videoRef}
             className={styles.video}
             src={videoUrl}
-            poster={poster || undefined}
             loop
             muted
             playsInline
-            preload={shouldPlay ? "auto" : "metadata"}
+            preload="metadata"
             aria-label={item.name}
           />
-        ) : null}
-
-        {!videoUrl && !poster ? (
+        ) : (
           <div className={styles.videoPlaceholder}>
             <svg
               width="40"
@@ -329,8 +273,7 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
             </svg>
             <span>No video yet</span>
           </div>
-        ) : null}
-
+        )}
         {!isMobile && videoUrl && !hovered && (
           <div className={styles.playHint} aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
