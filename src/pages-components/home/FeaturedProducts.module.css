@@ -1,5 +1,4 @@
 .featuredSection {
-  min-height: 480px;
 }
 
 @media (min-width: 861px) {
@@ -12,13 +11,10 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-6);
-  min-height: 380px;
 }
 
 .skeletonCard {
-  min-height: 360px;
   aspect-ratio: 3 / 4;
-  border-radius: var(--radius-md);
 }
 
 .cta {

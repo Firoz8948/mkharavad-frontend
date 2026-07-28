@@ -564,8 +564,6 @@
     transition: transform 0.3s ease;
     overflow: hidden;
     z-index: calc(var(--z-sticky) + 2);
-    pointer-events: none;
-    visibility: hidden;
   }
 
   .drawerBody {
@@ -625,8 +623,6 @@
 
   .mobileDrawerOpen {
     transform: translateX(0);
-    pointer-events: auto;
-    visibility: visible;
   }
 
   .navOverlay {

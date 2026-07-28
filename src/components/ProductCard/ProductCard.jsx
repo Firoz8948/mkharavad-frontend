@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { FiShoppingCart, FiShare2 } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -14,7 +13,7 @@ import { productShareUrl, shareLink } from "@/utils/share";
 import { getProductSocialProof } from "@/utils/socialProof";
 import styles from "./ProductCard.module.css";
 
-export default function ProductCard({ product, priority = false }) {
+export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const buyNow = useBuyNow();
   const image = mediaUrl(product.images?.[0]);
@@ -62,17 +61,8 @@ export default function ProductCard({ product, priority = false }) {
       <Link href={`/product/${product.slug}`} className={styles.card}>
         <div className={styles.imageWrap}>
           {image ? (
-            <div className={styles.imageInner}>
-              <Image
-                src={image}
-                alt={product.name}
-                fill
-                sizes="(max-width: 720px) 50vw, (max-width: 1000px) 33vw, 25vw"
-                className={styles.image}
-                priority={priority}
-                loading={priority ? "eager" : "lazy"}
-              />
-            </div>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt={product.name} className={styles.image} />
           ) : (
             <div className={styles.placeholder}>🥜</div>
           )}

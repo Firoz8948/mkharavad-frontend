@@ -5,9 +5,6 @@ const bunnyCdnHost =
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: "http",
@@ -18,11 +15,6 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: bunnyCdnHost,
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "api.mkharavad.com",
         pathname: "/**",
       },
     ],

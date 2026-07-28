@@ -8,7 +8,6 @@ import SiteChrome from "@/components/SiteChrome/SiteChrome";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ASSETS, BRAND } from "@/utils/constants";
-import { apiOrigin, cdnOrigin } from "@/utils/homeData";
 import {
   DEFAULT_DESCRIPTION,
   OG_IMAGE,
@@ -18,9 +17,6 @@ import {
   socialImages,
   websiteJsonLd,
 } from "@/utils/seo";
-
-const API_ORIGIN = apiOrigin();
-const CDN_ORIGIN = cdnOrigin();
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -88,12 +84,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
-      <head>
-        <link rel="preconnect" href={CDN_ORIGIN} crossOrigin="anonymous" />
-        <link rel="preconnect" href={API_ORIGIN} crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href={CDN_ORIGIN} />
-        <link rel="dns-prefetch" href={API_ORIGIN} />
-      </head>
       <body>
         <MetaPixel />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />

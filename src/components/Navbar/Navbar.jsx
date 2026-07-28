@@ -345,7 +345,6 @@ export default function Navbar() {
         className={`${styles.mobileDrawer} ${menuOpen ? styles.mobileDrawerOpen : ""}`}
         aria-hidden={!menuOpen}
         aria-label="Mobile menu"
-        {...(!menuOpen ? { inert: "" } : {})}
       >
         <div className={styles.drawerBody}>
           {renderLinks("mobile")}
