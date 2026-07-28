@@ -171,58 +171,74 @@ export default function VideoProducts() {
   );
 }
 
+function prepareInlineVideo(video) {
+  if (!video) return;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+}
+
 function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) {
   const cardRef = useRef(null);
   const videoRef = useRef(null);
   const [hovered, setHovered] = useState(false);
+  const [inView, setInView] = useState(false);
 
   const discount = calcDiscount(item.mrp, item.price);
   const soldOut = item.stock === 0;
   const proof = getProductSocialProof(item.product_id || item.id);
   const videoUrl = item.video_url ? mediaUrl(item.video_url, API_URL) : "";
+  const poster = mediaUrl(item.images?.[0], API_URL);
+  const shouldPlay = Boolean(videoUrl) && (isMobile ? inView : hovered);
 
-  // Mobile: autoplay while the card is mostly on screen (same as before).
+  // Mobile: autoplay while the card is mostly on screen.
   useEffect(() => {
-    const video = videoRef.current;
     const card = cardRef.current;
-    if (!isMobile || !video || !card || !videoUrl) return undefined;
+    if (!isMobile || !card || !videoUrl) return undefined;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
-          video.muted = true;
-          video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
+        setInView(entry.isIntersecting && entry.intersectionRatio >= 0.45);
       },
-      { threshold: [0, 0.35, 0.55, 0.75, 1], root: null, rootMargin: "0px" }
+      { threshold: [0, 0.35, 0.45, 0.55, 0.75, 1], root: null, rootMargin: "40px 0px" }
     );
 
     observer.observe(card);
-    return () => {
-      observer.disconnect();
-      video.pause();
-    };
+    return () => observer.disconnect();
   }, [isMobile, videoUrl]);
 
-  // Desktop: play on hover.
   useEffect(() => {
     const video = videoRef.current;
-    if (isMobile || !video || !videoUrl) return;
+    if (!video || !videoUrl) return undefined;
 
-    if (hovered) {
-      video.muted = true;
-      video.play().catch(() => {});
-    } else {
-      video.pause();
+    prepareInlineVideo(video);
+
+    if (shouldPlay) {
+      const run = () => {
+        prepareInlineVideo(video);
+        video.play().catch(() => {});
+      };
+      if (video.readyState >= 2) run();
+      else {
+        video.addEventListener("loadeddata", run, { once: true });
+        video.addEventListener("canplay", run, { once: true });
+      }
+      return () => video.pause();
+    }
+
+    video.pause();
+    if (!isMobile) {
       try {
         video.currentTime = 0;
       } catch {
-        /* ignore seek errors */
+        /* ignore */
       }
     }
-  }, [hovered, isMobile, videoUrl]);
+    return undefined;
+  }, [shouldPlay, videoUrl, isMobile]);
 
   const stopAnd = (fn) => (e) => {
     e.preventDefault();
@@ -252,10 +268,11 @@ function VideoProductCard({ item, isMobile, onOpen, onAdd, onBuyNow, onShare }) 
             ref={videoRef}
             className={styles.video}
             src={videoUrl}
+            poster={poster || undefined}
             loop
             muted
             playsInline
-            preload="metadata"
+            preload={shouldPlay || isMobile ? "auto" : "metadata"}
             aria-label={item.name}
           />
         ) : (
