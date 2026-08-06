@@ -79,6 +79,9 @@ export const metadata = {
     apple: ASSETS.icon,
   },
   category: "shopping",
+  verification: {
+    google: "lq-ecyVZeDqDfsXKDSZRhaDLTE9qHOvYuP6fWh5xXDI",
+  },
 };
 
 export default function RootLayout({ children }) {
