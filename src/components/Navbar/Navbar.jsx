@@ -30,6 +30,13 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+const POLICY_LINKS = [
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms & Conditions" },
+  { href: "/shipping-policy", label: "Shipping Policy" },
+  { href: "/refund-policy", label: "Refund & Returns" },
+];
+
 function displayName(user) {
   const name = user?.name?.trim();
   if (name) return name.split(" ")[0];
@@ -356,6 +363,19 @@ export default function Navbar() {
       >
         <div className={styles.drawerBody}>
           {renderLinks("mobile")}
+          <div className={styles.drawerPolicies}>
+            <p className={styles.drawerPoliciesTitle}>Policies</p>
+            {POLICY_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={styles.drawerPolicyLink}
+                onClick={closeMenu}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
           <form className={styles.searchMobile} onSubmit={handleSearch}>
             <input
               value={query}

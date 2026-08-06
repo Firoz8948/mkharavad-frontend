@@ -40,6 +40,10 @@ export default async function sitemap() {
     { path: "/shop", priority: 0.9, changeFrequency: "daily" },
     { path: "/about", priority: 0.7, changeFrequency: "monthly" },
     { path: "/contact", priority: 0.6, changeFrequency: "monthly" },
+    { path: "/privacy-policy", priority: 0.4, changeFrequency: "yearly" },
+    { path: "/terms", priority: 0.4, changeFrequency: "yearly" },
+    { path: "/shipping-policy", priority: 0.4, changeFrequency: "yearly" },
+    { path: "/refund-policy", priority: 0.4, changeFrequency: "yearly" },
   ].map(({ path, priority, changeFrequency }) => ({
     url: `${SITE_URL}${path}`,
     lastModified: now,

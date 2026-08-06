@@ -102,6 +102,14 @@ export default function Footer() {
         </div>
 
         <div className={styles.col}>
+          <h4>Policies</h4>
+          <Link href="/privacy-policy">Privacy Policy</Link>
+          <Link href="/terms">Terms &amp; Conditions</Link>
+          <Link href="/shipping-policy">Shipping Policy</Link>
+          <Link href="/refund-policy">Refund &amp; Returns</Link>
+        </div>
+
+        <div className={styles.col}>
           <h4>Get in Touch</h4>
           <p className={styles.contactLine}>
             <FiMapPin
@@ -146,6 +154,12 @@ export default function Footer() {
       <div className={styles.bottom}>
         <div className={`container ${styles.bottomInner}`}>
           <p>© {year} M Kharavad. All rights reserved.</p>
+          <div className={styles.bottomPolicies}>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/shipping-policy">Shipping</Link>
+            <Link href="/refund-policy">Refunds</Link>
+          </div>
         </div>
       </div>
     </footer>
